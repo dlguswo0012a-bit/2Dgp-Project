@@ -14,12 +14,18 @@ def d_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key
 def a_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_a
 def a_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_a
 def e_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_e
+def w_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_w
+def w_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_w
+
+
 
 def l_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_l
 def l_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_l
 def j_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_j
 def j_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_j
 def u_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_u
+def i_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_i
+def i_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_i
 
 
 
@@ -73,7 +79,7 @@ class Attack:
         self.mk.attack_box = None
 
         self.mk.attack_x = self.mk.x + (10*self.mk.face)
-        self.mk.attack_y = self.mk.foot_y+((HEIGHT+5)//2)
+        self.mk.attack_y = self.mk.y+((HEIGHT+5)//2)
 
         self.mk.impact_x = self.mk.attack_x
         self.mk.impact_y = self.mk.attack_y
@@ -103,7 +109,7 @@ class Attack:
 
         offset_x = 20
         effect_x = self.mk.x + (offset_x if self.mk.face == 1 else -offset_x)
-        effect_y = self.mk.foot_y + (ih * self.mk.scale) / 2  # 발 기준 y 고정
+        effect_y = self.mk.y + (ih * self.mk.scale) / 2  # 발 기준 y 고정
 
 
         if self.mk.face == 1:
@@ -126,7 +132,63 @@ class Hit:
         img, x, y, w, h = self.mk.get_current_frame('hit')
         self.mk.draw_frame(img, x, y, w, h)
 class Jump:
-    pass
+    def __init__(self, mk):
+        self.mk = mk
+
+    def enter(self, e):
+        player = e[0]
+        if player == 'INPUT_P1':
+            if d_down(e) or a_up(e):
+                self.mk.dir = 1
+                self.mk.face = 1
+            elif a_down(e) or d_up(e):
+                self.mk.dir = -1
+                self.mk.face = -1
+        elif player == 'INPUT_P2':
+            if l_down(e) or j_up(e):
+                self.mk.dir = 1
+                self.mk.face = 1
+            elif j_down(e) or l_up(e):
+                self.mk.dir = -1
+                self.mk.face = -1
+
+        if self.mk.on_floor:
+            self.mk.frame = 0
+            self.mk.yv = 50.0
+            self.mk.on_floor = False
+            self.mk.jump_delay = 0.1
+    def exit(self, e): pass
+
+    def do(self):
+        self.mk.y += self.mk.yv * game_framework.frame_time *5.0
+        self.mk.yv -= GRAVITY * game_framework.frame_time*5.0
+
+        if self.mk.yv > 0.0:
+            self.mk.frame = 0
+            self.mk.x += self.mk.dir * 100 * game_framework.frame_time
+        elif not self.mk.on_floor:
+            self.mk.frame = 1
+            self.mk.x += self.mk.dir * 100 * game_framework.frame_time
+    def draw(self):
+        img, x, y, w, h = self.mk.frames['jump'][self.mk.frame]
+        self.mk.draw_frame(img, x, y, w, h)
+
+class LAND:
+    def __init__(self, mk):
+        self.mk = mk
+    def enter(self, e):
+        self.mk.frame = 2
+        self.mk.on_floor = True
+        self.delay = get_time()
+    def exit(self, e): pass
+    def do(self):
+        if self.mk.frame == 3:
+            if get_time() - self.delay > 0.3:
+                self.mk.state_machine.handle_state_event(('JUMP_DONE', None))
+    def draw(self):
+        img, x, y, w, h = self.mk.frames['jump'][self.mk.frame]
+        self.mk.draw_frame(img, x, y, w, h)
+
 class Attack_Box:
     def __init__(self, x, y, w, h, owner):
         self.x, self.y = x, y
@@ -135,10 +197,10 @@ class Attack_Box:
 
     def update(self):
         if self.owner.face == 1:
-            self.x = self.owner.x + 47
+            self.x = self.owner.x + 40
         else:
-            self.x = self.owner.x - 47
-        self.y = self.owner.foot_y+30
+            self.x = self.owner.x - 40
+        self.y = self.owner.y
     def draw(self):
         draw_rectangle(*self.get_bb())
     def get_bb(self):
@@ -160,10 +222,12 @@ class Meta_knight:
         self.target = None
         self.attack_box = None
 
-        self.yv = 0.0
         self.on_floor = False
+        self.delay = 0.0
+        self.jump_delay = 0.0
+        self.yv = 0.0
 
-        self.foot_y = self.y
+        self.y
         self.scale = 2
 
         self.images = {
@@ -173,6 +237,7 @@ class Meta_knight:
             'attack': load_image('meta_night_attack_remove_impact.png'),
             'attack_done': load_image('meta_night_attack_remove_impact.png'),
             'impact': load_image('meta_night_attack_impact.png'),
+            'jump': load_image('meta_knight_jump.png'),
 
         }
 
@@ -203,13 +268,20 @@ class Meta_knight:
                 ('attack', 294, 8, 33, 37),
             ],
             'impact':[
-                ('impact',2, 0, 40, 45),  # 42 - 2
-                ('impact',53, 0, 65, 45),  # 118 - 53
-                ('impact',128, 0, 65, 45),  # 193 - 128
+                ('impact',2, 0, 40, 45),
+                ('impact',53, 0, 65, 45),
+                ('impact',128, 0, 65, 45),
                 ('impact',207, 10, 42, 35),
             ],
             'hit': [
                 ('hit', 254, 0, 32, 50)
+            ],
+            'jump': [
+                ('jump',17, 1, 33, 46),
+                ('jump',63, 6, 38, 41),
+                ('jump',117, 13, 38, 34),
+                ('jump',170, 11, 34, 36),
+
             ]
         }
 
@@ -217,19 +289,25 @@ class Meta_knight:
         self.WALK = Walk(self)
         self.ATTACK = Attack(self)
         self.HIT = Hit(self)
-        self.JUMP = Jump()
+        self.JUMP = Jump(self)
+        self.LAND = LAND(self)
 
         self.state_machine = StateMachine(
             self.STAND,
             {
                 self.STAND: {d_down: self.WALK, a_down: self.WALK, e_down: self.ATTACK,
                              j_down: self.WALK, l_down: self.WALK, u_down: self.ATTACK,
+                             w_down: self.JUMP, i_down: self.JUMP,
                              lambda e: e[0] == 'HIT': self.HIT},
                 self.WALK: {d_up: self.STAND, a_up: self.STAND, e_down: self.ATTACK,
                             j_up: self.STAND, l_up: self.STAND, u_down: self.ATTACK,
+                            w_down: self.JUMP, i_down: self.JUMP,
                             lambda e: e[0] == 'HIT': self.HIT},
                 self.ATTACK: {lambda e: e[0] == 'ATTACK_DONE': self.STAND, lambda e: e[0] == 'HIT': self.HIT},
-                self.HIT:    {lambda e: e[0] == 'HIT_DONE': self.STAND},
+                self.HIT: {lambda e: e[0] == 'HIT_DONE': self.STAND},
+                self.JUMP: {d_down: self.JUMP, a_down: self.JUMP, j_down: self.JUMP, l_down: self.JUMP,
+                            lambda e: e[0] == 'LAND': self.LAND},
+                self.LAND: {lambda e: e[0] == 'JUMP_DONE': self.STAND}
             }
         )
 
@@ -248,7 +326,7 @@ class Meta_knight:
         else:
             self.scale = 2
 
-        draw_y = self.foot_y + scaled_h / 2
+        draw_y = self.y + scaled_h / 2
 
         if self.face == 1:
             img.clip_draw(x, y, w, h, self.x, draw_y, w*self.scale, scaled_h)
@@ -257,8 +335,11 @@ class Meta_knight:
 
     def update(self):
         self.state_machine.update()
+        if self.jump_delay > 0:
+            self.jump_delay -= game_framework.frame_time
         if not self.on_floor:
-            self.gravity()
+            if not isinstance(self.state_machine.cur_state, Jump):
+                self.gravity()
         if self.on_floor:
             self.yv = 0.0
 
@@ -275,16 +356,21 @@ class Meta_knight:
     def get_bb(self):
         w = 50
         h = HEIGHT+2
-        return self.x - w // 2, self.foot_y, self.x + w // 2, self.foot_y+h
+        return self.x - w // 2, self.y, self.x + w // 2, self.y+h
 
     def handle_collision(self, group, other):
         if group == 'attack:body':
-            print('충돌')
+            if hasattr(other, 'owner'):
+                if other.owner == self:
+                    return
             self.state_machine.handle_state_event(('HIT', None))
-        if group =='body:floor':
+        if group == 'body:floor':
+            if self.jump_delay > 0:
+                return
             self.on_floor = True
             self.yv = 0.0
-            self.foot_y = other.y + other.h / 2
+            self.state_machine.handle_state_event(('LAND', None))
+
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
 
@@ -293,7 +379,7 @@ class Meta_knight:
             return
 
         box_x = self.x + 40 if self.face == 1 else self.x - 40
-        box_y = self.foot_y
+        box_y = self.y
 
         self.attack_box = Attack_Box(box_x, box_y, 30, 20, self)
         game_world.add_object(self.attack_box, 1)
@@ -301,4 +387,5 @@ class Meta_knight:
 
     def gravity(self):
         self.yv -= GRAVITY * game_framework.frame_time
-        self.foot_y += self.yv* game_framework.frame_time*ACTION_PER_TIME
+        self.y += self.yv * game_framework.frame_time * ACTION_PER_TIME
+
