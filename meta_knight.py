@@ -251,7 +251,7 @@ class Attack_Box:
     def draw(self):
         draw_rectangle(*self.get_bb())
     def get_bb(self):
-        return self.x - self.w // 2, self.y- self.h, self.x + self.w // 2, self.y + self.h
+        return (self.x - self.w // 2)-10, self.y , (self.x + self.w // 2)+5, self.y + self.h*2.5
     def handle_collision(self, group, other):
         if other ==self.owner:
             return
