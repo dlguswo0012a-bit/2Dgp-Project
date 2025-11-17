@@ -5,7 +5,7 @@ class Floor:
         self.x, self.y = x, y
         self.image = load_image('grass.png')
 
-        self.w, self.h = self.image.w, self.image.h
+        self.w, self.h = self.image.w, self.image.h-15
 
 
     def update(self):

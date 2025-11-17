@@ -5,7 +5,7 @@ from state_machine import StateMachine
 
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
-GRAVITY = 9.8
+GRAVITY = 9.8 * 2
 import time
 
 # ===== 입력 이벤트 =====
@@ -280,9 +280,9 @@ class King_DDD:
 
     def draw_frame(self, key, x, y, w, h):
         img = self.images[key]
-
+        draw_y = self.y + (h // 2) - 20
         if self.face == 1:
-            draw_y = self.y + (h // 2) - 20
+
             img.clip_draw(x, y, w, h, self.x, draw_y)
         else:
             img.clip_composite_draw(x, y, w, h, 0, 'h', self.x, draw_y, w, h)
@@ -342,9 +342,8 @@ class King_DDD:
 
         game_world.add_collision_pair('attack:body', self.attack_box, self.target)
     def gravity(self):
-        self.yv -= GRAVITY * game_framework.frame_time*2
-        self.y += self.yv* game_framework.frame_time*ACTION_PER_TIME*2
-
+        self.yv -= GRAVITY * game_framework.frame_time
+        self.y += self.yv* game_framework.frame_time*ACTION_PER_TIME
 
 
 

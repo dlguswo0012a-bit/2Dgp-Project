@@ -5,7 +5,7 @@ from state_machine import StateMachine
 
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
-GRAVITY = 9.8
+GRAVITY = 9.8 *2
 
 # ===== 입력 이벤트 =====
 def d_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_d
@@ -302,9 +302,9 @@ class Hammer_Kirby:
         img = self.images[key]
 
         if self.face == 1:
-            img.clip_draw(x, y, w, h, self.x, self.y)
+            img.clip_draw(x, y, w, h, self.x, self.y, w*1.2, h*1.2)
         else:
-            img.clip_composite_draw(x, y, w, h, 0, 'h', self.x, self.y, w, h)
+            img.clip_composite_draw(x, y, w, h, 0, 'h', self.x, self.y, w*1.2, h*1.2)
 
     def update(self):
         self.state_machine.update()

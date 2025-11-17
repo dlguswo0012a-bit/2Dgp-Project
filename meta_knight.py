@@ -5,7 +5,7 @@ from state_machine import StateMachine
 
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
-GRAVITY = 9.8
+GRAVITY = 9.8*2
 
 # ===== 입력 이벤트 =====
 def d_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_d
@@ -107,7 +107,7 @@ class Jump:
     pass
 class Attack_Box:
     def __init__(self, x, y, w, h, owner):
-        self.x, self.y = x+50, y
+        self.x, self.y = x, y
         self.w, self.h = w, h
         self.owner = owner
 
@@ -116,7 +116,7 @@ class Attack_Box:
             self.x = self.owner.x + 40
         else:
             self.x = self.owner.x - 40
-        self.y = self.owner.y
+        self.y = self.owner.foot_y
     def draw(self):
         draw_rectangle(*self.get_bb())
     def get_bb(self):
@@ -140,6 +140,9 @@ class Meta_knight:
 
         self.yv = 0.0
         self.on_floor = False
+
+        self.foot_y = self.y
+        self.scale = 1.5
 
         self.images = {
             'stand': load_image('meta_night_stand.png'),
@@ -203,10 +206,21 @@ class Meta_knight:
     def draw_frame(self, key, x, y, w, h):
         img = self.images[key]
 
-        if self.face == 1:
-            img.clip_draw(x, y, w, h, self.x, self.y)
+        scaled_h = h * self.scale
+        if key == 'attack':
+            _, _, _, base_w, base_h = self.frames['attack'][0]
+            base_scaled_h = base_h * self.scale
+
+            offset = (base_scaled_h - scaled_h) / 2
+            draw_y = self.foot_y + scaled_h / 2 + offset
+
         else:
-            img.clip_composite_draw(x, y, w, h, 0, 'h', self.x, self.y, w, h)
+            draw_y = self.foot_y + scaled_h / 2
+
+        if self.face == 1:
+            img.clip_draw(x, y, w, h, self.x, draw_y, w*self.scale, scaled_h)
+        else:
+            img.clip_composite_draw(x, y, w, h, 0, 'h', self.x, draw_y, w*self.scale, scaled_h)
 
     def update(self):
         self.state_machine.update()
@@ -226,9 +240,9 @@ class Meta_knight:
         self.draw_bb()
 
     def get_bb(self):
-        w = 30
+        w = 45
         h = 40
-        return self.x - w // 2, self.y - h // 2, self.x + w // 2, self.y + h // 2
+        return self.x - w // 2, self.foot_y, self.x + w // 2, self.foot_y+h
 
     def handle_collision(self, group, other):
         if group == 'attack:body':
@@ -237,6 +251,7 @@ class Meta_knight:
         if group =='body:floor':
             self.on_floor = True
             self.yv = 0.0
+            self.foot_y = other.y + other.h / 2
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
 
@@ -245,7 +260,7 @@ class Meta_knight:
             return
 
         box_x = self.x + 40 if self.face == 1 else self.x - 40
-        box_y = self.y
+        box_y = self.foot_y
 
         self.attack_box = Attack_Box(box_x, box_y, 30, 20, self)
         game_world.add_object(self.attack_box, 1)
@@ -253,4 +268,4 @@ class Meta_knight:
 
     def gravity(self):
         self.yv -= GRAVITY * game_framework.frame_time
-        self.y += self.yv* game_framework.frame_time*ACTION_PER_TIME
+        self.foot_y += self.yv* game_framework.frame_time*ACTION_PER_TIME
