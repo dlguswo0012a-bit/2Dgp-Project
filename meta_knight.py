@@ -6,6 +6,7 @@ from state_machine import StateMachine
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 GRAVITY = 9.8*2
+HEIGHT = 40
 
 # ===== 입력 이벤트 =====
 def d_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_d
@@ -70,6 +71,13 @@ class Attack:
     def enter(self, e):
         self.mk.frame = 0
         self.mk.attack_box = None
+
+        self.mk.attack_x = self.mk.x + (10*self.mk.face)
+        self.mk.attack_y = self.mk.foot_y+((HEIGHT+5)//2)
+
+        self.mk.impact_x = self.mk.attack_x
+        self.mk.impact_y = self.mk.attack_y
+
     def exit(self, e):
         if self.mk.attack_box:
             game_world.remove_object(self.mk.attack_box)
@@ -86,8 +94,22 @@ class Attack:
         if self.mk.frame >= n:
             self.mk.state_machine.handle_state_event(('ATTACK_DONE', None))
     def draw(self):
-        img, x, y, w, h = self.mk.get_current_frame('attack')
-        self.mk.draw_frame(img, x, y, w, h)
+        img, ax, ay, aw, ah = self.mk.get_current_frame('attack')
+        self.mk.draw_frame('attack', ax, ay, aw, ah)
+        frame = int(self.mk.frame)
+
+        img,ix, iy, iw, ih = self.mk.frames['impact'][frame]
+        effect_img = self.mk.images['impact']
+
+        offset_x = 20
+        effect_x = self.mk.x + (offset_x if self.mk.face == 1 else -offset_x)
+        effect_y = self.mk.foot_y + (ih * self.mk.scale) / 2  # 발 기준 y 고정
+
+
+        if self.mk.face == 1:
+            effect_img.clip_draw(ix, iy, iw, ih,effect_x, effect_y,iw * self.mk.scale,ih * self.mk.scale)
+        else:
+            effect_img.clip_composite_draw(ix, iy, iw, ih, 0, 'h',effect_x, effect_y,iw * self.mk.scale,ih * self.mk.scale)
 
 
 class Hit:
@@ -113,14 +135,14 @@ class Attack_Box:
 
     def update(self):
         if self.owner.face == 1:
-            self.x = self.owner.x + 40
+            self.x = self.owner.x + 47
         else:
-            self.x = self.owner.x - 40
-        self.y = self.owner.foot_y
+            self.x = self.owner.x - 47
+        self.y = self.owner.foot_y+30
     def draw(self):
         draw_rectangle(*self.get_bb())
     def get_bb(self):
-        return self.x - self.w // 2, self.y - self.h // 2, self.x + self.w // 2, self.y + self.h // 2
+        return self.x - self.w // 2, self.y- self.h, self.x + self.w // 2, self.y + self.h
     def handle_collision(self, group, other):
         if other ==self.owner:
             return
@@ -142,13 +164,16 @@ class Meta_knight:
         self.on_floor = False
 
         self.foot_y = self.y
-        self.scale = 1.5
+        self.scale = 2
 
         self.images = {
             'stand': load_image('meta_night_stand.png'),
             'walk': load_image('meta_night_walk.png'),
             'hit': load_image('meta_night_hit.png'),
-            'attack': load_image('meta_night_attack.png')
+            'attack': load_image('meta_night_attack_remove_impact.png'),
+            'attack_done': load_image('meta_night_attack_remove_impact.png'),
+            'impact': load_image('meta_night_attack_impact.png'),
+
         }
 
         self.frames = {
@@ -167,11 +192,21 @@ class Meta_knight:
                 ('walk', 212, 1, 27, 22),
             ],
             'attack': [
-                ('attack', 3, 4, 36, 35),
-                ('attack', 55, 4, 60, 46),
-                ('attack', 130, 4, 61, 46),
-                ('attack', 261, 16, 64, 35),
-                ('attack', 209, 18, 38, 33),
+                ('attack',2, 9, 28, 26),
+                ('attack',53, 11, 33, 24),
+                ('attack',128, 10, 34, 25),
+                ('attack',207, 10, 34, 25),
+
+            ],
+            'attack_done':[
+                ('attack', 251, 8, 39, 37),
+                ('attack', 294, 8, 33, 37),
+            ],
+            'impact':[
+                ('impact',2, 0, 40, 45),  # 42 - 2
+                ('impact',53, 0, 65, 45),  # 118 - 53
+                ('impact',128, 0, 65, 45),  # 193 - 128
+                ('impact',207, 10, 42, 35),
             ],
             'hit': [
                 ('hit', 254, 0, 32, 50)
@@ -208,14 +243,12 @@ class Meta_knight:
 
         scaled_h = h * self.scale
         if key == 'attack':
-            _, _, _, base_w, base_h = self.frames['attack'][0]
-            base_scaled_h = base_h * self.scale
-
-            offset = (base_scaled_h - scaled_h) / 2
-            draw_y = self.foot_y + scaled_h / 2 + offset
-
+            self.scale = 1.5
+            scaled_h = h * self.scale
         else:
-            draw_y = self.foot_y + scaled_h / 2
+            self.scale = 2
+
+        draw_y = self.foot_y + scaled_h / 2
 
         if self.face == 1:
             img.clip_draw(x, y, w, h, self.x, draw_y, w*self.scale, scaled_h)
@@ -240,8 +273,8 @@ class Meta_knight:
         self.draw_bb()
 
     def get_bb(self):
-        w = 45
-        h = 40
+        w = 50
+        h = HEIGHT+2
         return self.x - w // 2, self.foot_y, self.x + w // 2, self.foot_y+h
 
     def handle_collision(self, group, other):
