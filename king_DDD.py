@@ -85,7 +85,7 @@ class Attack:
     def do(self):
         frames = self.D.frames['attack']
         n = len(frames)
-        #time.sleep(2)
+
         self.D.frame += n * ACTION_PER_TIME * game_framework.frame_time
         idx = int(self.D.frame)
         if idx == 3:

@@ -179,9 +179,13 @@ class LAND:
     def enter(self, e):
         self.mk.frame = 2
         self.mk.on_floor = True
-        self.delay = get_time()
+        self.delay = 0.0
     def exit(self, e): pass
     def do(self):
+        if self.mk.frame == 2:
+            self.mk.frame = 3
+            self.delay = get_time()
+            return
         if self.mk.frame == 3:
             if get_time() - self.delay > 0.3:
                 self.mk.state_machine.handle_state_event(('JUMP_DONE', None))
@@ -227,7 +231,7 @@ class Meta_knight:
         self.jump_delay = 0.0
         self.yv = 0.0
 
-        self.y
+
         self.scale = 2
 
         self.images = {
@@ -320,7 +324,7 @@ class Meta_knight:
         img = self.images[key]
 
         scaled_h = h * self.scale
-        if key == 'attack':
+        if key == 'attack' or key == 'jump':
             self.scale = 1.5
             scaled_h = h * self.scale
         else:
