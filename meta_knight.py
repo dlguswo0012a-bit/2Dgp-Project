@@ -136,7 +136,13 @@ class Jump:
         self.mk = mk
 
     def enter(self, e):
-        player = e[0]
+        event_type = e[0]
+        if event_type == 'LANDING':
+            self.mk.frame = 1
+            self.mk.on_floor = False
+            return
+
+        player = event_type
         if player == 'INPUT_P1':
             if d_down(e) or a_up(e):
                 self.mk.dir = 1
@@ -152,11 +158,11 @@ class Jump:
                 self.mk.dir = -1
                 self.mk.face = -1
 
-        if self.mk.on_floor:
-            self.mk.frame = 0
-            self.mk.yv = 50.0
-            self.mk.on_floor = False
-            self.mk.jump_delay = 0.1
+            if self.mk.on_floor:
+                self.mk.frame = 0
+                self.mk.yv = 50.0
+                self.mk.on_floor = False
+                self.mk.jump_delay = 0.1
     def exit(self, e): pass
 
     def do(self):
@@ -172,6 +178,7 @@ class Jump:
     def draw(self):
         img, x, y, w, h = self.mk.frames['jump'][self.mk.frame]
         self.mk.draw_frame(img, x, y, w, h)
+
 
 class LAND:
     def __init__(self, mk):
@@ -296,22 +303,24 @@ class Meta_knight:
         self.JUMP = Jump(self)
         self.LAND = LAND(self)
 
+
         self.state_machine = StateMachine(
             self.STAND,
             {
                 self.STAND: {d_down: self.WALK, a_down: self.WALK, e_down: self.ATTACK,
                              j_down: self.WALK, l_down: self.WALK, u_down: self.ATTACK,
                              w_down: self.JUMP, i_down: self.JUMP,
-                             lambda e: e[0] == 'HIT': self.HIT},
+                             lambda e: e[0] == 'HIT': self.HIT, lambda e: e[0] == 'LANDING': self.JUMP},
                 self.WALK: {d_up: self.STAND, a_up: self.STAND, e_down: self.ATTACK,
                             j_up: self.STAND, l_up: self.STAND, u_down: self.ATTACK,
                             w_down: self.JUMP, i_down: self.JUMP,
-                            lambda e: e[0] == 'HIT': self.HIT},
+                            lambda e: e[0] == 'HIT': self.HIT, lambda e: e[0] == 'LANDING': self.JUMP},
                 self.ATTACK: {lambda e: e[0] == 'ATTACK_DONE': self.STAND, lambda e: e[0] == 'HIT': self.HIT},
-                self.HIT: {lambda e: e[0] == 'HIT_DONE': self.STAND},
+                self.HIT: {lambda e: e[0] == 'HIT_DONE': self.STAND, lambda e: e[0] == 'LANDING': self.JUMP},
                 self.JUMP: {d_down: self.JUMP, a_down: self.JUMP, j_down: self.JUMP, l_down: self.JUMP,
                             lambda e: e[0] == 'LAND': self.LAND},
-                self.LAND: {lambda e: e[0] == 'JUMP_DONE': self.STAND}
+                self.LAND: {lambda e: e[0] == 'JUMP_DONE': self.STAND},
+
             }
         )
 
@@ -343,7 +352,8 @@ class Meta_knight:
             self.jump_delay -= game_framework.frame_time
         if not self.on_floor:
             if not isinstance(self.state_machine.cur_state, Jump):
-                self.gravity()
+                self.state_machine.handle_state_event(('LANDING', None))
+
         if self.on_floor:
             self.yv = 0.0
 
