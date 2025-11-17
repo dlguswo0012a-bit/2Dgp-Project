@@ -135,7 +135,7 @@ class Jump:
 
         if self.D.on_floor:
             self.D.frame = 0
-            self.D.yv = 50.0
+            self.D.yv = 70.0
             self.D.on_floor = False
             self.D.jump_delay = 0.1
     def exit(self, e): pass
@@ -146,10 +146,10 @@ class Jump:
 
         if self.D.yv > 0.0:
             self.D.frame = 0
-            self.D.x += self.D.dir * 100 * game_framework.frame_time
+            self.D.x += self.D.dir * 150 * game_framework.frame_time
         elif not self.D.on_floor:
             self.D.frame = 1
-            self.D.x += self.D.dir * 100 * game_framework.frame_time
+            self.D.x += self.D.dir * 150 * game_framework.frame_time
     def draw(self):
         img, x, y, w, h = self.D.frames['jump'][self.D.frame]
         self.D.draw_frame(img, x, y, w, h)

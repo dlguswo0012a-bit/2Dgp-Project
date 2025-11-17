@@ -107,7 +107,7 @@ def init():
 
     floor1 = Floor(400,30)
     game_world.add_object(floor1,0)
-    floor2 = Floor(1200,200)
+    floor2 = Floor(1200,90)
     game_world.add_object(floor2,0)
 
     game_world.add_collision_pair('body:floor', p1, floor1)
