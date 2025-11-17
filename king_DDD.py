@@ -6,7 +6,7 @@ from state_machine import StateMachine
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 GRAVITY = 9.8
-
+import time
 
 # ===== 입력 이벤트 =====
 def d_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_d
@@ -85,9 +85,10 @@ class Attack:
     def do(self):
         frames = self.D.frames['attack']
         n = len(frames)
+        #time.sleep(2)
         self.D.frame += n * ACTION_PER_TIME * game_framework.frame_time
         idx = int(self.D.frame)
-        if idx == 4:
+        if idx == 3:
             if self.D.attack_box is None:
                 self.D.spawn_attack_box()
         if self.D.frame >= n:
@@ -230,20 +231,20 @@ class King_DDD:
                 ('walk', 201, 2, 62, 68),
             ],
             'attack': [
-                ('attack', 222, 1, 62, 103),
-                ('attack', 151, 2, 67, 96),
-                ('attack', 288, 1, 88, 95),
-                ('attack', 69, 1, 78, 77),
-                ('attack', 0, 1, 65, 75),
-                ('attack', 380, 1, 88, 70),
+                ('attack', 222, 7, 62, 76),
+                ('attack', 151, 7, 67, 78),
+                ('attack', 288, 7, 88, 97),
+                ('attack', 69, 7, 78, 103),
+                ('attack', 0, 7, 65, 95),
+                ('attack', 380, 7, 88, 70),
             ],
             'jump': [
-                ('jump', 3, 5, 63, 96),
-                ('jump', 70, 1, 69, 104),
-                ('jump', 143, 10, 68, 86),
+                ('jump', 13, 9, 59, 69),
+                ('jump', 77, 9, 63, 69),
+                ('jump', 144, 9, 65, 57),
             ],
             'hit': [
-                ('hit', 254, 0, 32, 50)
+                ('hit', 9, 4, 63, 69)
             ]
         }
 
@@ -281,9 +282,10 @@ class King_DDD:
         img = self.images[key]
 
         if self.face == 1:
-            img.clip_draw(x, y, w, h, self.x, self.y)
+            draw_y = self.y + (h // 2) - 20
+            img.clip_draw(x, y, w, h, self.x, draw_y)
         else:
-            img.clip_composite_draw(x, y, w, h, 0, 'h', self.x, self.y, w, h)
+            img.clip_composite_draw(x, y, w, h, 0, 'h', self.x, draw_y, w, h)
 
     def update(self):
         self.state_machine.update()
@@ -314,6 +316,10 @@ class King_DDD:
 
     def handle_collision(self, group, other):
         if group == 'attack:body':
+            if hasattr(other, 'owner'):
+                if other.owner == self:
+                    return
+
             print('충돌')
             self.state_machine.handle_state_event(('HIT', None))
         if group =='body:floor':
