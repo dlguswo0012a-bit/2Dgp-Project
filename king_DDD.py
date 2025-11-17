@@ -41,6 +41,7 @@ class Stand:
         self.D.draw_frame(img, x, y, w, h)
 
 
+
 class Walk:
     def __init__(self, D): self.D = D
     def enter(self, e):
