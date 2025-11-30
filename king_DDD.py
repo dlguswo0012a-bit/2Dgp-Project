@@ -115,7 +115,6 @@ class Hit:
 class Jump:
     def __init__(self, D):
         self.D = D
-
     def enter(self, e):
         player = e[0]
         if player == 'INPUT_P1':
@@ -137,6 +136,7 @@ class Jump:
             self.D.frame = 0
             self.D.yv = 70.0
             self.D.on_floor = False
+            self.D.count_jump =1
             self.D.jump_delay = 0.1
     def exit(self, e): pass
 
@@ -164,9 +164,47 @@ class LAND:
     def exit(self, e): pass
     def do(self):
         if get_time() - self.delay > 0.3:
+            print("LAND")
             self.D.state_machine.handle_state_event(('JUMP_DONE', None))
     def draw(self):
         img, x, y, w, h = self.D.frames['jump'][2]
+        self.D.draw_frame(img, x, y, w, h)
+
+class Falling:
+    def __init__(self, D):
+        self.D = D
+    def enter(self, e):
+        player = e[0]
+        self.D.frame = 1
+        if player == 'INPUT_P1':
+            if d_down(e) or a_up(e):
+                self.D.dir = 1
+                self.D.face = 1
+            elif a_down(e) or d_up(e):
+                self.D.dir = -1
+                self.D.face = -1
+        elif player == 'INPUT_P2':
+            if l_down(e) or j_up(e):
+                self.D.dir = 1
+                self.D.face = 1
+            elif j_down(e) or l_up(e):
+                self.D.dir = -1
+                self.D.face = -1
+
+    def exit(self, e): pass
+
+    def do(self):
+        self.D.y += self.D.yv * game_framework.frame_time *5.0
+        self.D.yv -= GRAVITY * game_framework.frame_time*5.0
+
+        self.D.frame = 1
+
+        if not self.D.on_floor:
+            self.D.frame = 1
+            self.D.x += self.D.dir * 150 * game_framework.frame_time
+            print("FALLING")
+    def draw(self):
+        img, x, y, w, h = self.D.frames['jump'][self.D.frame]
         self.D.draw_frame(img, x, y, w, h)
 
 class Attack_Box:
@@ -207,6 +245,9 @@ class King_DDD:
         self.on_floor = False
         self.delay = 0.0
         self.jump_delay = 0.0
+
+        self.width = 60
+        self.height = 40
 
         self.images = {
             'stand': load_image('king_dedede_stand.png'),
@@ -254,22 +295,25 @@ class King_DDD:
         self.JUMP = Jump(self)
         self.HIT = Hit(self)
         self.LAND = LAND(self)
+        self.FALLING = Falling(self)
 
         self.state_machine = StateMachine(
             self.STAND,
             {
                 self.STAND: {d_down: self.WALK, a_down: self.WALK, e_down: self.ATTACK,
-                             j_down: self.WALK, l_down: self.WALK,u_down: self.ATTACK,
-                             w_down: self.JUMP, i_down: self.JUMP,
+                             j_down: self.WALK, l_down: self.WALK, u_down: self.ATTACK,
+                             w_down: self.JUMP, i_down: self.JUMP,  # lambda e: e[0] == 'LANDING': self.LANDING,
                              lambda e: e[0] == 'HIT': self.HIT},
-                self.WALK:  {d_up: self.STAND, a_up: self.STAND, e_down: self.ATTACK,
-                             j_up: self.STAND, l_up: self.STAND,u_down: self.ATTACK,
-                             w_down: self.JUMP, i_down: self.JUMP,
-                             lambda e: e[0] == 'HIT': self.HIT},
+                self.WALK: {d_up: self.STAND, a_up: self.STAND, e_down: self.ATTACK,
+                            j_up: self.STAND, l_up: self.STAND, u_down: self.ATTACK,
+                            w_down: self.JUMP, i_down: self.JUMP,  # lambda e: e[0] == 'LANDING': self.LANDING,
+                            lambda e: e[0] == 'HIT': self.HIT},
                 self.ATTACK: {lambda e: e[0] == 'ATTACK_DONE': self.STAND, lambda e: e[0] == 'HIT': self.HIT},
-                self.HIT:    {lambda e: e[0] == 'HIT_DONE': self.STAND},
-                self.JUMP:   {d_down: self.JUMP, a_down: self.JUMP, j_down: self.JUMP, l_down: self.JUMP, lambda e: e[0] == 'LAND': self.LAND},
-                self.LAND:   {lambda e: e[0] == 'JUMP_DONE': self.STAND}
+                self.HIT: {lambda e: e[0] == 'HIT_DONE': self.STAND},
+                self.JUMP: {d_down: self.JUMP, a_down: self.JUMP, j_down: self.JUMP, l_down: self.JUMP,
+                            lambda e: e[0] == 'LAND': self.LAND},
+                self.LAND: {lambda e: e[0] == 'JUMP_DONE': self.STAND},
+
             }
         )
 
@@ -289,11 +333,12 @@ class King_DDD:
 
     def update(self):
         self.state_machine.update()
-        if self.jump_delay >0:
+        if self.jump_delay > 0:
             self.jump_delay -= game_framework.frame_time
         if not self.on_floor:
-            if not isinstance(self.state_machine.cur_state, Jump):
-                self.gravity()
+            self.gravity()
+            # self.state_machine.handle_state_event(('LANDING', None))
+
         if self.on_floor:
             self.yv = 0.0
 
@@ -316,19 +361,21 @@ class King_DDD:
 
     def handle_collision(self, group, other):
         if group == 'attack:body':
-            if hasattr(other, 'owner'):
-                if other.owner == self:
-                    return
-
-            print('충돌')
+            if hasattr(other, 'owner') and other.owner == self:
+                return
             self.state_machine.handle_state_event(('HIT', None))
-        if group =='body:floor':
+
+        if group == 'body:floor':
             if self.jump_delay > 0:
                 return
-            self.on_floor = True
-            self.yv = 0.0
-            self.state_machine.handle_state_event(('LAND', None))
 
+            if isinstance(self.state_machine.cur_state, Jump):
+                self.on_floor = True
+                self.yv = 0.0
+                self.state_machine.handle_state_event(('LAND', None))
+            else:
+                self.on_floor = True
+                self.yv = 0.0
 
     def spawn_attack_box(self):
         if self.target is None:
@@ -341,6 +388,7 @@ class King_DDD:
         game_world.add_object(self.attack_box, 1)
 
         game_world.add_collision_pair('attack:body', self.attack_box, self.target)
+
     def gravity(self):
         self.yv -= GRAVITY * game_framework.frame_time
         self.y += self.yv* game_framework.frame_time*ACTION_PER_TIME
