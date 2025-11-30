@@ -92,8 +92,8 @@ def init():
     p1.x = 400
     p1.y = 150
 
-    p2.x = 1200
-    p2.y = 300
+    p2.x = 700
+    p2.y = 200
     p2.face = -1
 
     game_world.add_object(p1,1)
