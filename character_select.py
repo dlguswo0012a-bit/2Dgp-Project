@@ -2,18 +2,18 @@ from pico2d import *
 import game_framework
 import play_mode
 
-title_image = None
+character_select = None
 
 def init():
-    global title_image
-    title_image = load_image('title.png')
+    global character_select
+    character_select = load_image('character_select.png')
 
 def update():
     pass
 
 def draw():
     clear_canvas()
-    title_image.draw(600, 300, 1200, 600)
+    character_select.draw(600, 300, 1200, 600)
     update_canvas()
 
 def handle_events():

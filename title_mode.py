@@ -1,6 +1,6 @@
 from pico2d import *
 import game_framework
-import play_mode
+import character_select
 
 title_image = None
 
@@ -25,7 +25,7 @@ def handle_events():
             if event.key == SDLK_ESCAPE:
                 game_framework.quit()
             else:
-                game_framework.change_mode(play_mode)
+                game_framework.change_mode(character_select)
 
 def finish():
     pass
