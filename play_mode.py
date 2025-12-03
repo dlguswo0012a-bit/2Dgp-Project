@@ -10,7 +10,7 @@ from king_DDD import King_DDD
 from hammer_kriby import Hammer_Kirby
 
 
-
+background = None
 p1 = None
 p2 = None
 
@@ -84,7 +84,9 @@ def handle_events():
             p2.handle_event_p2(event)
 
 def init():
-    global p1, p2, floor1, floor2
+    global p1, p2, floor1, floor2, background
+
+    background = load_image('Background.png')
 
     p1 = Hammer_Kirby()
     p2 = Meta_knight()
@@ -128,6 +130,7 @@ def update():
 
 def draw():
     clear_canvas()
+    background.draw(600, 300, 1200, 600)
     game_world.render()
     update_canvas()
 
