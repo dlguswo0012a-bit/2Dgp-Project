@@ -181,6 +181,8 @@ class Hammer_Kirby:
         self.yv = 0.0
         self.on_floor = False
 
+        self.hp = 100
+
         self.images = {
             'stand': load_image('Hammer_Kirby_stand.png'),
             'walk': load_image('Hammer_Kirby_walk.png'),
@@ -354,6 +356,11 @@ class Hammer_Kirby:
     def handle_collision(self, group, other):
         if group == 'attack:body':
            print('충돌')
+           self.hp-=10
+           print('HP:',self.hp)
+           if self.hp <=0:
+               print('Hammer Kirby defeated!')
+               game_world.remove_object(self)
            self.state_machine.handle_state_event(('HIT', None))
         if group =='body:floor':
             self.on_floor = True
