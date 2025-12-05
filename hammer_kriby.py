@@ -68,11 +68,13 @@ class Walk:
 
 
 class Attack:
-    def __init__(self, hk): self.hk = hk
+    def __init__(self, hk):
+        self.hk = hk
+        self.attack_spawn = False
     def enter(self, e):
         self.hk.frame = 0
         self.hk.attack_box = None
-
+        self.attack_spawn = False
         if e[0] == 'INPUT_P1':
             ev = e[1]
             if ev.type == SDL_KEYDOWN:
@@ -97,6 +99,7 @@ class Attack:
         if self.hk.attack_box:
             game_world.remove_object(self.hk.attack_box)
             self.hk.attack_box = None
+        self.attack_spawn = False
     def do(self):
         action = self.hk.current_attack
         frames = self.hk.frames[action]
@@ -105,7 +108,8 @@ class Attack:
         self.hk.frame += n * ACTION_PER_TIME * game_framework.frame_time
         idx = int(self.hk.frame)
         if action =="attack_q1":
-           if idx == 1 or idx == 2:
+           if idx == 1 or idx == 2 and not self.attack_spawn:
+               self.attack_spawn = True
                if self.hk.attack_box:
                      game_world.remove_object(self.hk.attack_box)
                self.hk.spawn_attack_box()
@@ -170,14 +174,14 @@ class Attack_Box:
             return
         print('충돌')
         other.state_machine.handle_state_event(('HIT', None))
-        other.hp -= 10
+        other.hp -= 5
         print(f'HP: {other.hp}')
         if other.hp <= 0:
             print("죽음")
         self.hit = True
-        if self.owner.attack_box == self:
-            game_world.remove_object(self)
-            self.owner.attack_box = None
+
+        game_world.remove_object(self)
+        self.owner.attack_box = None
 
 # ==================== 본체 ========================
 class Hammer_Kirby:
@@ -193,7 +197,7 @@ class Hammer_Kirby:
         self.yv = 0.0
         self.on_floor = False
 
-        self.hp = 100
+        self.hp = 1000
 
         self.images = {
             'stand': load_image('Hammer_Kirby_stand.png'),

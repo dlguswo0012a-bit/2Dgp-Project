@@ -72,9 +72,12 @@ class Walk:
 
 
 class Attack:
-    def __init__(self, D): self.D = D
+    def __init__(self, D):
+        self.D = D
+        self.attack_spawn = False
     def enter(self, e):
         self.D.frame = 0
+        self.attack_spawn = False
         if self.D.attack_box:
             game_world.remove_object(self.D.attack_box)
             self.D.attack_box = None
@@ -82,13 +85,15 @@ class Attack:
         if self.D.attack_box:
             game_world.remove_object(self.D.attack_box)
             self.D.attack_box = None
+        self.attack_spawn = False
     def do(self):
         frames = self.D.frames['attack']
         n = len(frames)
 
         self.D.frame += n * ACTION_PER_TIME * game_framework.frame_time
         idx = int(self.D.frame)
-        if idx == 3:
+        if idx == 3 and not self.attack_spawn:
+            self.attack_spawn = True
             if self.D.attack_box is None:
                 self.D.spawn_attack_box()
         if self.D.frame >= n:
@@ -232,15 +237,15 @@ class Attack_Box:
         other.state_machine.handle_state_event(('HIT', None))
 
         print('충돌')
-        other.hp -= 10
+        other.hp -= 5
         print(f'HP: {other.hp}')
 
         if other.hp <= 0:
             print("죽음")
         self.hit = True
-        if self.owner.attack_box == self:
-            game_world.remove_object(self)
-            self.owner.attack_box = None
+
+        game_world.remove_object(self)
+        self.owner.attack_box = None
 
 # ==================== 본체 ========================
 class King_DDD:
@@ -263,7 +268,7 @@ class King_DDD:
         self.width = 60
         self.height = 40
 
-        self.hp = 100
+        self.hp = 1000
 
         self.images = {
             'stand': load_image('king_dedede_stand.png'),
