@@ -137,6 +137,22 @@ def update():
 
     p1.on_floor = False
     p2.on_floor = False
+    if p1.dead:
+        if len(selected_p1) > 1:
+            selected_p1.pop(0)  # 현재 캐릭터 제거
+            next_char = create_character(selected_p1[0])
+            choice_character(next_char, p1)
+        else:
+            print("P1 모든 캐릭터 사망")
+
+    if p2.dead:
+        if len(selected_p2) > 1:
+            selected_p2.pop(0)
+            next_char = create_character(selected_p2[0])
+            choice_character(next_char, p2)
+        else:
+            print("P2 모든 캐릭터 사망")
+
 
     game_world.update()
     game_world.handle_collisions()

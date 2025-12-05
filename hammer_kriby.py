@@ -178,6 +178,7 @@ class Attack_Box:
         print(f'HP: {other.hp}')
         if other.hp <= 0:
             print("죽음")
+            other.dead = True
         self.hit = True
 
         game_world.remove_object(self)
@@ -197,7 +198,8 @@ class Hammer_Kirby:
         self.yv = 0.0
         self.on_floor = False
 
-        self.hp = 1000
+        self.hp = 100
+        self.dead = False
 
         self.images = {
             'stand': load_image('Hammer_Kirby_stand.png'),

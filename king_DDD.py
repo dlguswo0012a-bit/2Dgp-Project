@@ -242,6 +242,7 @@ class Attack_Box:
 
         if other.hp <= 0:
             print("죽음")
+            other.dead = True
         self.hit = True
 
         game_world.remove_object(self)
@@ -268,7 +269,8 @@ class King_DDD:
         self.width = 60
         self.height = 40
 
-        self.hp = 1000
+        self.hp = 100
+        self.dead = False
 
         self.images = {
             'stand': load_image('king_dedede_stand.png'),
