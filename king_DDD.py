@@ -240,8 +240,10 @@ class Attack_Box:
         other.hp -= 5
         print(f'HP: {other.hp}')
 
-        if other.hp <= 0:
+        if other.hp <= 50:
             print("죽음")
+            other.swap = True
+        if other.hp <=0:
             other.dead = True
         self.hit = True
 
@@ -271,6 +273,7 @@ class King_DDD:
 
         self.hp = 100
         self.dead = False
+        self.swap = False
 
         self.images = {
             'stand': load_image('king_dedede_stand.png'),

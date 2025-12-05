@@ -137,20 +137,20 @@ def update():
 
     p1.on_floor = False
     p2.on_floor = False
-    if p1.dead:
+    if p1.swap:
         if len(selected_p1) > 1:
             selected_p1.pop(0)  # 현재 캐릭터 제거
             next_char = create_character(selected_p1[0])
             choice_character(next_char, p1)
-        else:
+        elif p1.dead:
             print("P1 모든 캐릭터 사망")
 
-    if p2.dead:
+    if p2.swap:
         if len(selected_p2) > 1:
             selected_p2.pop(0)
             next_char = create_character(selected_p2[0])
             choice_character(next_char, p2)
-        else:
+        elif p2.dead:
             print("P2 모든 캐릭터 사망")
 
 

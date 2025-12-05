@@ -176,8 +176,9 @@ class Attack_Box:
         other.state_machine.handle_state_event(('HIT', None))
         other.hp -= 5
         print(f'HP: {other.hp}')
-        if other.hp <= 0:
-            print("죽음")
+        if other.hp <= 50:
+            other.swqp = True
+        elif other.hp <= 0:
             other.dead = True
         self.hit = True
 
@@ -200,6 +201,7 @@ class Hammer_Kirby:
 
         self.hp = 100
         self.dead = False
+        self.swap = False
 
         self.images = {
             'stand': load_image('Hammer_Kirby_stand.png'),
