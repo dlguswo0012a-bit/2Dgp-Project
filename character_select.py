@@ -62,8 +62,10 @@ def handle_events():
                 p2_choices.append('ddd')
             elif event.key == SDLK_c and len(p2_choices) < 2:
                 p2_choices.append('kirby')
-            else:
-                game_framework.change_mode(play_mode)
+            elif event.key == SDLK_SPACE:
+                if len(p1_choices) == 2 and len(p2_choices) == 2:
+                    play_mode.set_selected_characters(p1_choices, p2_choices)
+                    game_framework.change_mode(play_mode)
 
 
 

@@ -14,8 +14,23 @@ background = None
 p1 = None
 p2 = None
 
+selected_p1 = []
+selected_p2 = []
 
+def set_selected_characters(p1_list, p2_list):
+    global selected_p1, selected_p2
+    selected_p1 = p1_list
+    selected_p2 = p2_list
 
+def create_character(name):
+    if name == 'kirby':
+        return Hammer_Kirby()
+    elif name == 'ddd':
+        return King_DDD()
+    elif name == 'meta':
+        return Meta_knight()
+    else:
+        return Hammer_Kirby()
 
 def choice_character(char,p):
     global p1, p2
@@ -88,8 +103,8 @@ def init():
 
     background = load_image('Background.png')
 
-    p1 = Hammer_Kirby()
-    p2 = Meta_knight()
+    p1 = create_character(selected_p1[0])
+    p2 = create_character(selected_p2[0])
 
     p1.x = 400
     p1.y = 150
