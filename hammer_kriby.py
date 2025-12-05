@@ -150,6 +150,7 @@ class Attack_Box:
         self.x, self.y = x + 50, y
         self.w, self.h = w, h
         self.owner = owner
+        self.hit = False
 
     def update(self):
         if self.owner.face == 1:
@@ -163,9 +164,20 @@ class Attack_Box:
     def get_bb(self):
         return self.x - self.w // 2, self.y - self.h // 2, self.x + self.w // 2, self.y + self.h // 2
     def handle_collision(self, group, other):
+        if self.hit:
+            return
         if other ==self.owner:
             return
+        print('충돌')
         other.state_machine.handle_state_event(('HIT', None))
+        other.hp -= 10
+        print(f'HP: {other.hp}')
+        if other.hp <= 0:
+            print("죽음")
+        self.hit = True
+        if self.owner.attack_box == self:
+            game_world.remove_object(self)
+            self.owner.attack_box = None
 
 # ==================== 본체 ========================
 class Hammer_Kirby:
@@ -354,14 +366,6 @@ class Hammer_Kirby:
         draw_rectangle(*self.get_bb())
 
     def handle_collision(self, group, other):
-        if group == 'attack:body':
-           print('충돌')
-           self.hp-=10
-           print('HP:',self.hp)
-           if self.hp <=0:
-               print('Hammer Kirby defeated!')
-               game_world.remove_object(self)
-           self.state_machine.handle_state_event(('HIT', None))
         if group =='body:floor':
             self.on_floor = True
             self.yv = 0.0
