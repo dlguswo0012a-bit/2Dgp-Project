@@ -84,16 +84,19 @@ class Attack:
         self.mk.impact_x = self.mk.attack_x
         self.mk.impact_y = self.mk.attack_y
 
+        self.attack_spawn = False
     def exit(self, e):
         if self.mk.attack_box:
             game_world.remove_object(self.mk.attack_box)
             self.mk.attack_box = None
+        self.attack_spawn = False
     def do(self):
         frames = self.mk.frames['attack']
         n = len(frames)
         self.mk.frame += n * ACTION_PER_TIME * game_framework.frame_time
         idx = int(self.mk.frame)
-        if idx == 2:
+        if idx == 2 and not self.attack_spawn:
+            self.attack_spawn = True
             if self.mk.attack_box is None:
                 self.mk.spawn_attack_box()
 
@@ -219,7 +222,7 @@ class Attack_Box:
         other.state_machine.handle_state_event(('HIT', None))
 
         print('충돌')
-        other.hp -= 50
+        other.hp -= 10
         print(f'HP: {other.hp}')
 
         if other.hp <= 50:

@@ -89,7 +89,6 @@ class Attack:
     def do(self):
         frames = self.D.frames['attack']
         n = len(frames)
-
         self.D.frame += n * ACTION_PER_TIME * game_framework.frame_time
         idx = int(self.D.frame)
         if idx == 3 and not self.attack_spawn:

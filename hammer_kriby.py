@@ -15,7 +15,8 @@ def a_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key
 def e_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_e
 def w_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_w
 def w_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_w
-
+def q_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_q
+def q_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_q
 
 
 def l_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_l
@@ -25,7 +26,8 @@ def j_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key
 def u_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_u
 def i_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_i
 def i_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_i
-
+def o_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_o
+def o_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_o
 
 # ====================== 상태들 ============================
 class Stand:
@@ -74,10 +76,19 @@ class Attack:
     def __init__(self, hk):
         self.hk = hk
         self.attack_spawn = False
+        self.attack_cooldown = 0.3  #공격 딜래이
+        self.attack_timer = 0
+        self.cooldown_timer = 0 #쿨타임 재는용
+        self.total_time = 5 #쿨타임 총
+        self.attack_total_time = 1.5 #공격 지속 시간
+        self.spawn_ready = True
+
     def enter(self, e):
         self.hk.frame = 0
         self.hk.attack_box = None
         self.attack_spawn = False
+        self.spawn_ready = True
+
         if e[0] == 'INPUT_P1':
             ev = e[1]
             if ev.type == SDL_KEYDOWN:
@@ -111,20 +122,32 @@ class Attack:
         self.hk.frame += n * ACTION_PER_TIME * game_framework.frame_time
         idx = int(self.hk.frame)
         if action =="attack_q1":
-           if idx == 2 and not self.attack_spawn:
-               self.attack_spawn = True
-               if self.hk.attack_box:
+            if idx == 2 and not self.attack_spawn:
+                self.attack_timer = 0
+                self.attack_spawn = True
+                if self.hk.attack_box:
                      game_world.remove_object(self.hk.attack_box)
-               self.hk.spawn_attack_box()
-           self.hk.x += self.hk.dir * 200 * game_framework.frame_time
+                self.hk.spawn_attack_box()
+
+            if self.attack_spawn and self.attack_timer >= self.attack_cooldown:
+                if self.hk.attack_box is None and self.attack_timer <= self.attack_total_time:
+                    self.cooldown_timer = 0
+                    self.hk.spawn_attack_box()
+
+            if self.attack_timer >= self.attack_total_time:
+                self.hk.state_machine.handle_state_event(('ATTACK_DONE', None))
+            self.hk.x += self.hk.dir * 200 * game_framework.frame_time
 
         elif action =="attack_q2":
             if self.hk.frame >= n:
                 self.hk.state_machine.handle_state_event(('ATTACK_DONE', None))
 
         elif action =="attack_e":
-            if idx == 3:
+            if idx == 3and not self.attack_spawn:
                 if self.hk.attack_box is None:
+                    self.attack_spawn = True
+                    if self.hk.attack_box:
+                        game_world.remove_object(self.hk.attack_box)
                     self.hk.spawn_attack_box()
             if self.hk.frame >=n:
                 self.hk.state_machine.handle_state_event(('ATTACK_DONE', None))
