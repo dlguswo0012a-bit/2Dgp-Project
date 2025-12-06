@@ -93,7 +93,7 @@ class Attack:
         n = len(frames)
         self.mk.frame += n * ACTION_PER_TIME * game_framework.frame_time
         idx = int(self.mk.frame)
-        if idx == 1 or 2:
+        if idx == 2:
             if self.mk.attack_box is None:
                 self.mk.spawn_attack_box()
 
@@ -199,6 +199,7 @@ class Attack_Box:
         self.x, self.y = x, y
         self.w, self.h = w, h
         self.owner = owner
+        self.hit = False
 
     def update(self):
         if self.owner.face == 1:
@@ -211,10 +212,27 @@ class Attack_Box:
     def get_bb(self):
         return (self.x - self.w // 2)-10, self.y , (self.x + self.w // 2)+5, self.y + self.h*2.5
     def handle_collision(self, group, other):
-        if other ==self.owner:
+        if self.hit:
+            return
+        if other == self.owner:
             return
         other.state_machine.handle_state_event(('HIT', None))
 
+        print('충돌')
+        other.hp -= 50
+        print(f'HP: {other.hp}')
+
+        if other.hp <= 50:
+            other.swap = True
+        if other.hp <= 0:
+            print("죽음")
+            other.dead = True
+            other.hp = 100
+            self.owner.hp = 100
+        self.hit = True
+
+        game_world.remove_object(self)
+        self.owner.attack_box = None
 
 # ==================== 본체 ========================
 class Meta_knight:
@@ -232,6 +250,9 @@ class Meta_knight:
         self.jump_delay = 0.0
         self.yv = 0.0
 
+        self.hp = 100
+        self.dead = False
+        self.swap = False
 
         self.scale = 2
 
