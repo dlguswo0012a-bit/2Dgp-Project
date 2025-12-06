@@ -76,86 +76,39 @@ class Attack:
     def __init__(self, hk):
         self.hk = hk
         self.attack_spawn = False
-        self.attack_cooldown = 0.3  #공격 딜래이
-        self.attack_timer = 0
-        self.cooldown_timer = 0 #쿨타임 재는용
-        self.total_time = 5 #쿨타임 총
-        self.attack_total_time = 1.5 #공격 지속 시간
-        self.spawn_ready = True
 
     def enter(self, e):
         self.hk.frame = 0
-        self.hk.attack_box = None
         self.attack_spawn = False
-        self.spawn_ready = True
 
-        if e[0] == 'INPUT_P1':
-            ev = e[1]
-            if ev.type == SDL_KEYDOWN:
-                if ev.key == SDLK_q:
-                    self.hk.current_attack = 'attack_q1'
-                elif ev.key == SDLK_e:
-                    self.hk.current_attack = 'attack_e'
-            elif ev.type == SDL_KEYUP:
-                if ev.key == SDLK_q:
-                    self.hk.current_attack = 'attack_q2'
-        elif e[0] == 'INPUT_P2':
-            ev = e[1]
-            if ev.type == SDL_KEYDOWN:
-                if ev.key == SDLK_o:
-                    self.hk.current_attack = 'attack_q1'
-                elif ev.key == SDLK_u:
-                    self.hk.current_attack = 'attack_e'
-            elif ev.type == SDL_KEYUP:
-                if ev.key == SDLK_o:
-                    self.hk.current_attack = 'attack_q2'
+        if self.hk.attack_box:
+            game_world.remove_object(self.hk.attack_box)
+            self.hk.attack_box = None
+
     def exit(self, e):
         if self.hk.attack_box:
             game_world.remove_object(self.hk.attack_box)
             self.hk.attack_box = None
+
         self.attack_spawn = False
+
     def do(self):
-        action = self.hk.current_attack
-        frames = self.hk.frames[action]
+        frames = self.hk.frames['attack']
         n = len(frames)
 
         self.hk.frame += n * ACTION_PER_TIME * game_framework.frame_time
         idx = int(self.hk.frame)
-        if action =="attack_q1":
-            if idx == 2 and not self.attack_spawn:
-                self.attack_timer = 0
-                self.attack_spawn = True
-                if self.hk.attack_box:
-                     game_world.remove_object(self.hk.attack_box)
+
+        if idx == 2 and not self.attack_spawn:
+            self.attack_spawn = True
+            if self.hk.attack_box is None:
                 self.hk.spawn_attack_box()
 
-            if self.attack_spawn and self.attack_timer >= self.attack_cooldown:
-                if self.hk.attack_box is None and self.attack_timer <= self.attack_total_time:
-                    self.cooldown_timer = 0
-                    self.hk.spawn_attack_box()
-
-            if self.attack_timer >= self.attack_total_time:
-                self.hk.state_machine.handle_state_event(('ATTACK_DONE', None))
-            self.hk.x += self.hk.dir * 200 * game_framework.frame_time
-
-        elif action =="attack_q2":
-            if self.hk.frame >= n:
-                self.hk.state_machine.handle_state_event(('ATTACK_DONE', None))
-
-        elif action =="attack_e":
-            if idx == 3and not self.attack_spawn:
-                if self.hk.attack_box is None:
-                    self.attack_spawn = True
-                    if self.hk.attack_box:
-                        game_world.remove_object(self.hk.attack_box)
-                    self.hk.spawn_attack_box()
-            if self.hk.frame >=n:
-                self.hk.state_machine.handle_state_event(('ATTACK_DONE', None))
-
+        if self.hk.frame >= n:
+            self.hk.state_machine.handle_state_event(('ATTACK_DONE', None))
 
     def draw(self):
-        action = self.hk.current_attack
-        img, x, y, w, h = self.hk.get_current_frame(action)
+        img, x, y, w, h = self.hk.get_current_frame('attack')
         self.hk.draw_frame(img, x, y, w, h)
 
 
@@ -298,9 +251,7 @@ class Hammer_Kirby:
             'stand': load_image('Hammer_Kirby_stand.png'),
             'walk': load_image('Hammer_Kirby_walk.png'),
             'hit': load_image('Hammer_Kirby_hit.png'),
-            'attack_e': load_image('Hammer_Kirby_attack_e.png'),
-            'attack_q1': load_image('Hammer_Kirby_attack_q1.png'),
-            'attack_q2': load_image('Hammer_Kirby_attack_q2.png'),
+            'attack': load_image('Hammer_Kirby_attack_e.png'),
             'jump': load_image('Hammer_Kirby_jump.png'),
         }
 
@@ -323,28 +274,11 @@ class Hammer_Kirby:
                 ('walk', 310, 2, 31, 48),
                 ('walk', 345, 2, 29, 48),
             ],
-            'attack_e': [
-                ('attack_e', 138, 2, 49, 53),
-                ('attack_e', 101, 4, 33, 48),
-                ('attack_e', 56, 6, 41, 46),
-                ('attack_e', 8, 11, 44, 41),
-            ],
-            'attack_q1': [
-                ('attack_q1', 6, 4, 29, 26),
-                ('attack_q1', 39, 6, 40, 24),
-                ('attack_q1', 83, 7, 45, 23),
-                ('attack_q1', 132, 5, 34, 25),
-                ('attack_q1', 170, 4, 29, 26),
-                ('attack_q1', 203, 5, 39, 25),
-                ('attack_q1', 247, 5, 46, 25),
-                ('attack_q1', 297, 5, 34, 25),
-            ],
-            'attack_q2': [
-                ('attack_q2', 2, 11, 28, 26),
-                ('attack_q2', 34, 11, 26, 26),
-                ('attack_q2', 64, 12, 25, 24),
-                ('attack_q2', 93, 3, 33, 33),
-                ('attack_q2', 130, 0, 37, 36),
+            'attack': [
+                ('attack', 138, 2, 49, 53),
+                ('attack', 101, 4, 33, 48),
+                ('attack', 56, 6, 41, 46),
+                ('attack', 8, 11, 44, 41),
             ],
 
             'jump': [
@@ -357,8 +291,6 @@ class Hammer_Kirby:
                 ('hit', 3, 4, 45, 34),
             ]
         }
-
-        self.cur_state = 'attack_e'
 
         self.STAND = Stand(self)
         self.WALK = Walk(self)
