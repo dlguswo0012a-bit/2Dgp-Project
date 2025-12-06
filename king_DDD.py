@@ -241,9 +241,9 @@ class Attack_Box:
         print(f'HP: {other.hp}')
 
         if other.hp <= 50:
-            print("죽음")
             other.swap = True
         if other.hp <=0:
+            print("죽음")
             other.dead = True
         self.hit = True
 
@@ -336,9 +336,9 @@ class King_DDD:
                             lambda e: e[0] == 'HIT': self.HIT},
                 self.ATTACK: {lambda e: e[0] == 'ATTACK_DONE': self.STAND, lambda e: e[0] == 'HIT': self.HIT},
                 self.HIT: {lambda e: e[0] == 'HIT_DONE': self.STAND},
-                self.JUMP: {d_down: self.JUMP, a_down: self.JUMP, j_down: self.JUMP, l_down: self.JUMP,
+                self.JUMP: {d_down: self.JUMP, a_down: self.JUMP, j_down: self.JUMP, l_down: self.JUMP,lambda e: e[0] == 'HIT': self.HIT,
                             lambda e: e[0] == 'LAND': self.LAND},
-                self.LAND: {lambda e: e[0] == 'JUMP_DONE': self.STAND},
+                self.LAND: {lambda e: e[0] == 'JUMP_DONE': self.STAND,lambda e: e[0] == 'HIT': self.HIT},
 
             }
         )

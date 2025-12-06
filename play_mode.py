@@ -33,25 +33,43 @@ def create_character(name):
         return Hammer_Kirby()
 
 def choice_character(char,p):
-    global p1, p2
+    global p1, p2,floor1, floor2
+    game_world.clear_collision_group('attack:body')
 
-    if p == p1:
-        x,y = p1.x, p1.y
-        game_world.remove_object(p1)
+    if p is p1:
+        old = p1
+        old_x, old_y, old_face = old.x, old.y, old.face
+        # 기존 공격 박스가 있으면 제거
+        if old.attack_box:
+            game_world.remove_object(old.attack_box)
+            old.attack_box = None
+        # 기존 객체 제거 및 새 객체 추가
+        game_world.remove_object(old)
         p1 = char
-        p1.x, p1.y = x,y
-        game_world.add_object(p1,1)
-    if p == p2:
-        x,y = p2.x, p2.y
-        face = p2.face
-        game_world.remove_object(p2)
+        p1.x, p1.y = old_x, old_y
+        p1.face = old_face
+        game_world.add_object(p1, 1)
+
+    elif p is p2:
+        old = p2
+        old_x, old_y, old_face = old.x, old.y, old.face
+        if old.attack_box:
+            game_world.remove_object(old.attack_box)
+            old.attack_box = None
+        game_world.remove_object(old)
         p2 = char
-        p2.x, p2.y = x,y
-        p2.face = face
-        game_world.add_object(p2,1)
+        p2.x, p2.y = old_x, old_y
+        p2.face = old_face
+        game_world.add_object(p2, 1)
 
     p1.target=p2
     p2.target=p1
+
+    if p1.attack_box is not None:
+        game_world.add_collision_pair('attack:body', p1.attack_box, p2)
+    if p2.attack_box is not None:
+        game_world.add_collision_pair('attack:body', p2.attack_box, p1)
+
 
     game_world.add_collision_pair('attack:body', p1.attack_box, p2)
     game_world.add_collision_pair('attack:body', p2.attack_box, p1)
@@ -61,7 +79,8 @@ def choice_character(char,p):
     game_world.add_collision_pair('body:floor', p2, floor1)
     game_world.add_collision_pair('body:floor', p2, floor2)
 
-
+    char.frame = 0
+    char.state_machine.cur_state = char.STAND
 
 
 def handle_events():
@@ -133,25 +152,34 @@ def init():
     game_world.add_collision_pair('body:floor', p2, floor1)
     game_world.add_collision_pair('body:floor', p2, floor2)
 def update():
-    global p1, p2
+    global p1, p2, selected_p1, selected_p2
 
     p1.on_floor = False
     p2.on_floor = False
     if p1.swap:
         if len(selected_p1) > 1:
-            selected_p1.pop(0)  # 현재 캐릭터 제거
+            selected_p1.pop(0)
             next_char = create_character(selected_p1[0])
             choice_character(next_char, p1)
+            if p1.attack_box:
+                game_world.remove_object(p1.attack_box)
+            p1.attack_box = None
+            p1.state_machine.change_state(p1.HIT)
         elif p1.dead:
             print("P1 모든 캐릭터 사망")
-
+        p1.swap = False
     if p2.swap:
         if len(selected_p2) > 1:
             selected_p2.pop(0)
             next_char = create_character(selected_p2[0])
             choice_character(next_char, p2)
+            if p2.attack_box:
+                game_world.remove_object(p2.attack_box)
+            p2.attack_box = None
+            p2.state_machine.change_state(p2.ATTACK)
         elif p2.dead:
             print("P2 모든 캐릭터 사망")
+        p2.swap = False
 
 
     game_world.update()

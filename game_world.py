@@ -77,4 +77,6 @@ def handle_collisions():
 
 
 
-
+def clear_collision_group(group):
+    if group in collision_pairs:
+        collision_pairs[group] = [[], []]
