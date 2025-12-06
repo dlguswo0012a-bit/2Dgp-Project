@@ -131,7 +131,6 @@ class Jump:
 
     def enter(self, e):
         player = e[0]
-
         if player == 'INPUT_P1':
             if d_down(e) or a_up(e):
                 self.hk.dir = 1
@@ -216,9 +215,8 @@ class Attack_Box:
         other.state_machine.handle_state_event(('HIT', None))
         other.hp -= 5
         print(f'HP: {other.hp}')
-        if other.hp <= 50:
-            other.swap = True
-        elif other.hp <= 0:
+
+        if other.hp <= 0:
             other.dead = True
             other.hp = 100
             self.owner.hp = 100
@@ -226,6 +224,49 @@ class Attack_Box:
 
         game_world.remove_object(self)
         self.owner.attack_box = None
+
+
+
+class Counter:
+    def __init__(self, hk):
+        self.hk = hk
+        self.attack_spawn = False
+
+    def enter(self, e):
+        self.hk.frame = 0
+        self.attack_spawn = False
+
+        if self.hk.attack_box:
+            game_world.remove_object(self.hk.attack_box)
+            self.hk.attack_box = None
+
+    def exit(self, e):
+        if self.hk.attack_box:
+            game_world.remove_object(self.hk.attack_box)
+            self.hk.attack_box = None
+
+        self.attack_spawn = False
+
+    def do(self):
+        frames = self.hk.frames['attack']
+        n = len(frames)
+
+        self.hk.frame += n * ACTION_PER_TIME * game_framework.frame_time
+        idx = int(self.hk.frame)
+
+        if idx == 2 and not self.attack_spawn:
+            self.attack_spawn = True
+            if self.hk.attack_box is None:
+                self.hk.spawn_attack_box()
+
+        if self.hk.frame >= n:
+            self.hk.state_machine.handle_state_event(('ATTACK_DONE', None))
+
+    def draw(self):
+        img, x, y, w, h = self.hk.get_current_frame('attack')
+        self.hk.draw_frame(img, x, y, w, h)
+
+
 
 # ==================== 본체 ========================
 class Hammer_Kirby:
@@ -298,6 +339,7 @@ class Hammer_Kirby:
         self.JUMP = Jump(self)
         self.HIT = Hit(self)
         self.LAND = LAND(self)
+        self.COUNTER = Counter(self)
 
         self.state_machine = StateMachine(
             self.STAND,
@@ -316,6 +358,7 @@ class Hammer_Kirby:
                             lambda e: e[0] == 'HIT': self.HIT,
                             lambda e: e[0] == 'LAND': self.LAND},
                 self.LAND: {lambda e: e[0] == 'JUMP_DONE': self.STAND, lambda e: e[0] == 'HIT': self.HIT},
+                self.COUNTER: {lambda e: e[0] == 'ATTACK_DONE': self.STAND},
 
             }
         )
@@ -352,6 +395,9 @@ class Hammer_Kirby:
             elif event.key == SDLK_a:
                 self.dir = -1
                 self.face = -1
+            elif event.key == SDLK_q:
+                self.swap = True
+
         elif event.type ==SDL_KEYUP:
             if event.key == SDLK_d or event.key == SDLK_a:
                 self.dir = 0
@@ -365,6 +411,8 @@ class Hammer_Kirby:
             elif event.key == SDLK_j:
                 self.dir = -1
                 self.face = -1
+            elif event.key == SDLK_o:
+                self.swap = True
         elif event.type ==SDL_KEYUP:
             if event.key == SDLK_l or event.key == SDLK_j:
                 self.dir = 0

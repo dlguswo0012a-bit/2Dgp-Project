@@ -210,13 +210,14 @@ def update():
     p2.on_floor = False
     if p1.swap:
         if len(selected_p1) > 1:
-            selected_p1.pop(0)
+            selected_p1.append(selected_p1.pop(0))
             next_char = create_character(selected_p1[0])
             choice_character(next_char, p1)
             if p1.attack_box:
                 game_world.remove_object(p1.attack_box)
             p1.attack_box = None
-            p1.state_machine.change_state(p1.STAND)
+            p1.swap = False
+            p1.state_machine.change_state(p1.COUNTER)
         elif p1.dead:
             print("P1 모든 캐릭터 사망")
             p2_win += 1
@@ -225,13 +226,14 @@ def update():
         p1.swap = False
     if p2.swap:
         if len(selected_p2) > 1:
-            selected_p2.pop(0)
+            selected_p2.append(selected_p2.pop(0))
             next_char = create_character(selected_p2[0])
             choice_character(next_char, p2)
             if p2.attack_box:
                 game_world.remove_object(p2.attack_box)
             p2.attack_box = None
-            p2.state_machine.change_state(p2.STAND)
+            p2.swap = False
+            p2.state_machine.change_state(p2.COUNTER)
         elif p2.dead:
             print("P2 모든 캐릭터 사망")
             p1_win += 1

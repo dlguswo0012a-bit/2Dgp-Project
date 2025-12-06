@@ -16,7 +16,8 @@ def a_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key
 def e_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_e
 def w_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_w
 def w_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_w
-
+def q_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_q
+def q_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_q
 
 
 def l_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_l
@@ -26,6 +27,8 @@ def j_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key
 def u_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_u
 def i_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_i
 def i_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_i
+def o_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_o
+def o_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_o
 
 # ====================== 상태들 ============================
 class Stand:
@@ -202,8 +205,6 @@ class Attack_Box:
         other.hp -= 50
         print(f'HP: {other.hp}')
 
-        if other.hp <= 50:
-            other.swap = True
         if other.hp <=0:
             print("죽음")
             other.dead = True
@@ -213,6 +214,37 @@ class Attack_Box:
 
         game_world.remove_object(self)
         self.owner.attack_box = None
+
+class Counter:
+    def __init__(self, D):
+        self.D = D
+        self.attack_spawn = False
+    def enter(self, e):
+        self.D.frame = 0
+        self.attack_spawn = False
+        if self.D.attack_box:
+            game_world.remove_object(self.D.attack_box)
+            self.D.attack_box = None
+    def exit(self, e):
+        if self.D.attack_box:
+            game_world.remove_object(self.D.attack_box)
+            self.D.attack_box = None
+        self.attack_spawn = False
+    def do(self):
+        frames = self.D.frames['attack']
+        n = len(frames)
+        self.D.frame += n * ACTION_PER_TIME * game_framework.frame_time
+        idx = int(self.D.frame)
+        if idx == 3 and not self.attack_spawn:
+            self.attack_spawn = True
+            if self.D.attack_box is None:
+                self.D.spawn_attack_box()
+        if self.D.frame >= n:
+            self.D.state_machine.handle_state_event(('ATTACK_DONE', None))
+    def draw(self):
+        img, x, y, w, h = self.D.get_current_frame('attack')
+        self.D.draw_frame(img, x, y, w, h)
+
 
 # ==================== 본체 ========================
 class King_DDD:
@@ -285,6 +317,7 @@ class King_DDD:
         self.JUMP = Jump(self)
         self.HIT = Hit(self)
         self.LAND = LAND(self)
+        self.COUNTER = Counter(self)
 
         self.state_machine = StateMachine(
             self.STAND,
@@ -302,6 +335,7 @@ class King_DDD:
                 self.JUMP: {d_down: self.JUMP, a_down: self.JUMP, j_down: self.JUMP, l_down: self.JUMP,lambda e: e[0] == 'HIT': self.HIT,
                             lambda e: e[0] == 'LAND': self.LAND},
                 self.LAND: {lambda e: e[0] == 'JUMP_DONE': self.STAND,lambda e: e[0] == 'HIT': self.HIT},
+                self.COUNTER: {lambda e: e[0] == 'ATTACK_DONE': self.STAND},
 
             }
         )
@@ -332,9 +366,13 @@ class King_DDD:
             self.yv = 0.0
 
     def handle_event_p1(self, event):
+        if event.key == SDLK_q:
+            self.swap = True
         self.state_machine.handle_state_event(('INPUT_P1', event))
 
     def handle_event_p2(self, event):
+        if event.key == SDLK_o:
+            self.swap = True
         self.state_machine.handle_state_event(('INPUT_P2', event))
 
     def draw(self):

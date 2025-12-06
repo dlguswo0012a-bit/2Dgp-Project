@@ -16,7 +16,8 @@ def a_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key
 def e_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_e
 def w_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_w
 def w_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_w
-
+def q_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_q
+def q_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_q
 
 
 def l_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_l
@@ -26,6 +27,8 @@ def j_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key
 def u_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_u
 def i_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_i
 def i_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_i
+def o_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_o
+def o_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_o
 
 
 
@@ -222,11 +225,9 @@ class Attack_Box:
         other.state_machine.handle_state_event(('HIT', None))
 
         print('충돌')
-        other.hp -= 10
+        other.hp -= 50
         print(f'HP: {other.hp}')
 
-        if other.hp <= 50:
-            other.swap = True
         if other.hp <= 0:
             print("죽음")
             other.dead = True
@@ -236,6 +237,55 @@ class Attack_Box:
 
         game_world.remove_object(self)
         self.owner.attack_box = None
+
+class Counter:
+    def __init__(self, mk): self.mk = mk
+    def enter(self, e):
+        self.mk.frame = 0
+        self.mk.attack_box = None
+
+        self.mk.attack_x = self.mk.x + (10*self.mk.face)
+        self.mk.attack_y = self.mk.y+((HEIGHT+5)//2)
+
+        self.mk.impact_x = self.mk.attack_x
+        self.mk.impact_y = self.mk.attack_y
+
+        self.attack_spawn = False
+    def exit(self, e):
+        if self.mk.attack_box:
+            game_world.remove_object(self.mk.attack_box)
+            self.mk.attack_box = None
+        self.attack_spawn = False
+    def do(self):
+        frames = self.mk.frames['attack']
+        n = len(frames)
+        self.mk.frame += n * ACTION_PER_TIME * game_framework.frame_time
+        idx = int(self.mk.frame)
+        if idx == 2 and not self.attack_spawn:
+            self.attack_spawn = True
+            if self.mk.attack_box is None:
+                self.mk.spawn_attack_box()
+
+        if self.mk.frame >= n:
+            self.mk.state_machine.handle_state_event(('ATTACK_DONE', None))
+    def draw(self):
+        img, ax, ay, aw, ah = self.mk.get_current_frame('attack')
+        self.mk.draw_frame('attack', ax, ay, aw, ah)
+        frame = int(self.mk.frame)
+
+        img,ix, iy, iw, ih = self.mk.frames['impact'][frame]
+        effect_img = self.mk.images['impact']
+
+        offset_x = 20
+        effect_x = self.mk.x + (offset_x if self.mk.face == 1 else -offset_x)
+        effect_y = self.mk.y + (ih * self.mk.scale) / 2  # 발 기준 y 고정
+
+
+        if self.mk.face == 1:
+            effect_img.clip_draw(ix, iy, iw, ih,effect_x, effect_y,iw * self.mk.scale,ih * self.mk.scale)
+        else:
+            effect_img.clip_composite_draw(ix, iy, iw, ih, 0, 'h',effect_x, effect_y,iw * self.mk.scale,ih * self.mk.scale)
+
 
 # ==================== 본체 ========================
 class Meta_knight:
@@ -320,6 +370,7 @@ class Meta_knight:
         self.HIT = Hit(self)
         self.JUMP = Jump(self)
         self.LAND = LAND(self)
+        self.COUNTER = Counter(self)
 
         self.state_machine = StateMachine(
             self.STAND,
@@ -337,7 +388,7 @@ class Meta_knight:
                 self.JUMP: {d_down: self.JUMP, a_down: self.JUMP, j_down: self.JUMP, l_down: self.JUMP,
                             lambda e: e[0] == 'LAND': self.LAND},
                 self.LAND: {lambda e: e[0] == 'JUMP_DONE': self.STAND},
-                #self.LANDING: {lambda e: e[0] == 'LAND': self.LAND}
+                self.COUNTER: {lambda e: e[0] == 'ATTACK_DONE': self.STAND},
 
             }
         )
@@ -376,9 +427,13 @@ class Meta_knight:
             self.yv = 0.0
 
     def handle_event_p1(self, event):
+        if event.key == SDLK_q:
+            self.swap = True
         self.state_machine.handle_state_event(('INPUT_P1', event))
 
     def handle_event_p2(self, event):
+        if event.key == SDLK_o:
+            self.swap = True
         self.state_machine.handle_state_event(('INPUT_P2', event))
 
     def draw(self):
