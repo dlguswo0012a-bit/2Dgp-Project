@@ -244,6 +244,8 @@ class Attack_Box:
             other.swap = True
         elif other.hp <= 0:
             other.dead = True
+            other.hp = 100
+            self.owner.hp = 100
         self.hit = True
 
         game_world.remove_object(self)

@@ -17,10 +17,22 @@ p2 = None
 selected_p1 = []
 selected_p2 = []
 
+selected_p1_org = []
+selected_p2_org = []
+
+p1_win = 0
+p2_win = 0
+max_wins = 2
+game_over = False
+
 def set_selected_characters(p1_list, p2_list):
-    global selected_p1, selected_p2
-    selected_p1 = p1_list
-    selected_p2 = p2_list
+    global selected_p1, selected_p2, selected_p1_org, selected_p2_org
+    selected_p1 = p1_list[:]
+    selected_p2 = p2_list[:]
+
+    selected_p1_org = p1_list[:]
+    selected_p2_org = p2_list[:]
+
 
 def create_character(name):
     if name == 'kirby':
@@ -79,9 +91,31 @@ def choice_character(char,p):
     game_world.add_collision_pair('body:floor', p2, floor1)
     game_world.add_collision_pair('body:floor', p2, floor2)
 
+
     char.frame = 0
     char.state_machine.cur_state = char.STAND
 
+
+def reset_round():
+    global selected_p1, selected_p2
+    selected_p1 = selected_p1_org[:]
+    selected_p2 = selected_p2_org[:]
+
+    game_world.clear()
+    init()
+
+def final_round():
+    global game_over
+    if p1_win >= max_wins:
+        print("P1 최종 승리!")
+        game_over = True
+    elif p2_win >= max_wins:
+        print("P2 최종 승리!")
+        game_over = True
+    else:
+        print("다음 라운드 시작!")
+        game_over = False
+        reset_round()
 
 def handle_events():
     global p1,p2
@@ -152,7 +186,9 @@ def init():
     game_world.add_collision_pair('body:floor', p2, floor1)
     game_world.add_collision_pair('body:floor', p2, floor2)
 def update():
-    global p1, p2, selected_p1, selected_p2
+    global p1, p2, selected_p1, selected_p2, game_over, p1_win, p2_win
+    if game_over:
+        return
 
     p1.on_floor = False
     p2.on_floor = False
@@ -164,9 +200,12 @@ def update():
             if p1.attack_box:
                 game_world.remove_object(p1.attack_box)
             p1.attack_box = None
-            p1.state_machine.change_state(p1.HIT)
+            p1.state_machine.change_state(p1.STAND)
         elif p1.dead:
             print("P1 모든 캐릭터 사망")
+            p2_win += 1
+            final_round()
+
         p1.swap = False
     if p2.swap:
         if len(selected_p2) > 1:
@@ -176,9 +215,12 @@ def update():
             if p2.attack_box:
                 game_world.remove_object(p2.attack_box)
             p2.attack_box = None
-            p2.state_machine.change_state(p2.ATTACK)
+            p2.state_machine.change_state(p2.STAND)
         elif p2.dead:
             print("P2 모든 캐릭터 사망")
+            p1_win += 1
+            final_round()
+
         p2.swap = False
 
 

@@ -200,7 +200,7 @@ class Attack_Box:
         other.state_machine.handle_state_event(('HIT', None))
 
         print('충돌')
-        other.hp -= 5
+        other.hp -= 50
         print(f'HP: {other.hp}')
 
         if other.hp <= 50:
@@ -208,6 +208,8 @@ class Attack_Box:
         if other.hp <=0:
             print("죽음")
             other.dead = True
+            other.hp = 100
+            self.owner.hp = 100
         self.hit = True
 
         game_world.remove_object(self)
