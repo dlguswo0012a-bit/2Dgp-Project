@@ -3,6 +3,7 @@ from pico2d import *
 
 import game_framework
 import game_world
+import character_select
 
 from floor import Floor
 from meta_knight import Meta_knight
@@ -124,6 +125,9 @@ def handle_events():
     for event in event_list:
         if event.type == SDL_QUIT:
             game_framework.quit()
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE and game_over:
+            game_framework.change_mode(character_select)
+
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
         elif event.key == SDLK_1 and event.type == SDL_KEYDOWN:
