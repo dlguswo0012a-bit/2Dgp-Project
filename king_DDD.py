@@ -366,12 +366,12 @@ class King_DDD:
             self.yv = 0.0
 
     def handle_event_p1(self, event):
-        if event.key == SDLK_q:
+        if event.type ==SDL_KEYDOWN and event.key == SDLK_q:
             self.swap = True
         self.state_machine.handle_state_event(('INPUT_P1', event))
 
     def handle_event_p2(self, event):
-        if event.key == SDLK_o:
+        if event.type ==SDL_KEYDOWN and event.key == SDLK_o:
             self.swap = True
         self.state_machine.handle_state_event(('INPUT_P2', event))
 

@@ -201,20 +201,25 @@ def init():
 
     game_world.add_collision_pair('body:floor', p2, floor1)
     game_world.add_collision_pair('body:floor', p2, floor2)
+
+p1_swap = False
+p2_swap = False
+
 def update():
     global p1, p2, selected_p1, selected_p2, game_over, p1_win, p2_win
+    global p1_swap, p2_swap
     if game_over:
         return
 
     p1.on_floor = False
     p2.on_floor = False
-    if p1.swap:
+    if p1.swap and not p1_swap:
+        p1_swap = False
         if len(selected_p1) > 1:
-            selected_p1.append(selected_p1.pop(0))
+            selected_p1.append(selected_p1[0])
+            selected_p1.pop(0)
             next_char = create_character(selected_p1[0])
             choice_character(next_char, p1)
-            if p1.attack_box:
-                game_world.remove_object(p1.attack_box)
             p1.attack_box = None
             p1.swap = False
             p1.state_machine.change_state(p1.COUNTER)
@@ -222,24 +227,27 @@ def update():
             print("P1 모든 캐릭터 사망")
             p2_win += 1
             final_round()
-
         p1.swap = False
-    if p2.swap:
+        p1_swap = True
+    p1_swap = False
+
+    if p2.swap and not p2_swap:
+        p2_swap = False
         if len(selected_p2) > 1:
-            selected_p2.append(selected_p2.pop(0))
+            selected_p2.append(selected_p2[0])
+            selected_p2.pop(0)
+            print(selected_p2)
             next_char = create_character(selected_p2[0])
             choice_character(next_char, p2)
-            if p2.attack_box:
-                game_world.remove_object(p2.attack_box)
             p2.attack_box = None
             p2.swap = False
+            p2_swap = True
             p2.state_machine.change_state(p2.COUNTER)
         elif p2.dead:
             print("P2 모든 캐릭터 사망")
             p1_win += 1
             final_round()
-
-        p2.swap = False
+    p2_swap = False
 
 
     game_world.update()

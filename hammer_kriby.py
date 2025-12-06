@@ -413,7 +413,7 @@ class Hammer_Kirby:
                 self.face = -1
             elif event.key == SDLK_o:
                 self.swap = True
-        elif event.type ==SDL_KEYUP:
+        elif event.type == SDL_KEYUP:
             if event.key == SDLK_l or event.key == SDLK_j:
                 self.dir = 0
         self.state_machine.handle_state_event(('INPUT_P2', event))
