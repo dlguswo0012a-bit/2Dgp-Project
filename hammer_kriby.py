@@ -111,7 +111,7 @@ class Attack:
         self.hk.frame += n * ACTION_PER_TIME * game_framework.frame_time
         idx = int(self.hk.frame)
         if action =="attack_q1":
-           if idx == 1 or idx == 2 and not self.attack_spawn:
+           if idx == 2 and not self.attack_spawn:
                self.attack_spawn = True
                if self.hk.attack_box:
                      game_world.remove_object(self.hk.attack_box)

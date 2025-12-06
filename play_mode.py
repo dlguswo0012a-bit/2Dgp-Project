@@ -96,6 +96,18 @@ def choice_character(char,p):
     char.frame = 0
     char.state_machine.cur_state = char.STAND
 
+def reset_game():
+    global selected_p1, selected_p2, selected_p1_org, selected_p2_org, p1_win, p2_win, game_over
+    selected_p1 = []
+    selected_p2 = []
+    selected_p1_org = []
+    selected_p2_org = []
+    p1_win = 0
+    p2_win = 0
+    game_over = False
+    character_select.p1_choices.clear()
+    character_select.p2_choices.clear()
+    game_world.clear()
 
 def reset_round():
     global selected_p1, selected_p2
@@ -126,8 +138,8 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE and game_over:
+            reset_game()
             game_framework.change_mode(character_select)
-
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
         elif event.key == SDLK_1 and event.type == SDL_KEYDOWN:
