@@ -13,16 +13,19 @@ def d_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key
 def a_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_a
 def a_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_a
 def e_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_e
-def q_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_q
-def q_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_q
+def w_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_w
+def w_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_w
+
+
 
 def l_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_l
 def l_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_l
 def j_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_j
 def j_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_j
 def u_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_u
-def o_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_o
-def o_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_o
+def i_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_i
+def i_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_i
+
 
 # ====================== 상태들 ============================
 class Stand:
@@ -146,8 +149,69 @@ class Hit:
     def draw(self):
         img, x, y, w, h = self.hk.get_current_frame('hit')
         self.hk.draw_frame(img, x, y, w, h)
+
 class Jump:
-    pass
+    def __init__(self,  hk): self.hk = hk
+
+    def enter(self, e):
+        player = e[0]
+
+        if player == 'INPUT_P1':
+            if d_down(e) or a_up(e):
+                self.hk.dir = 1
+                self.hk.face = 1
+            elif a_down(e) or d_up(e):
+                self.hk.dir = -1
+                self.hk.face = -1
+        elif player == 'INPUT_P2':
+            if l_down(e) or j_up(e):
+                self.hk.dir = 1
+                self.hk.face = 1
+            elif j_down(e) or l_up(e):
+                self.hk.dir = -1
+                self.hk.face = -1
+
+        if self.hk.on_floor:
+            self.hk.frame = 0
+            self.hk.yv = 70.0
+            self.hk.on_floor = False
+            self.hk.jump_delay = 0.1
+    def exit(self, e): pass
+
+    def do(self):
+        self.hk.y += self.hk.yv * game_framework.frame_time *5.0
+        self.hk.yv -= GRAVITY * game_framework.frame_time*5.0
+
+        if self.hk.yv > 0.0:
+            self.hk.frame = 0
+            self.hk.x += self.hk.dir * 150 * game_framework.frame_time
+        elif not self.hk.on_floor:
+            self.hk.frame = 1
+            self.hk.x += self.hk.dir * 150 * game_framework.frame_time
+    def draw(self):
+        img, x, y, w, h = self.hk.frames['jump'][self.hk.frame]
+        self.hk.draw_frame(img, x, y, w, h)
+
+class LAND:
+    def __init__(self, hk):
+        self.hk = hk
+    def enter(self, e):
+        self.hk.frame = 2
+        self.hk.on_floor = True
+        self.delay = 0.0
+    def exit(self, e): pass
+    def do(self):
+        if self.hk.frame == 2:
+            self.hk.frame = 3
+            self.delay = get_time()
+            return
+        if self.hk.frame == 3:
+            if get_time() - self.delay > 0.3:
+                self.hk.state_machine.handle_state_event(('JUMP_DONE', None))
+    def draw(self):
+        img, x, y, w, h = self.hk.frames['jump'][self.hk.frame]
+        self.hk.draw_frame(img, x, y, w, h)
+
 
 class Attack_Box:
     def __init__(self, x, y, w, h, owner):
@@ -177,7 +241,7 @@ class Attack_Box:
         other.hp -= 5
         print(f'HP: {other.hp}')
         if other.hp <= 50:
-            other.swqp = True
+            other.swap = True
         elif other.hp <= 0:
             other.dead = True
         self.hit = True
@@ -198,6 +262,8 @@ class Hammer_Kirby:
 
         self.yv = 0.0
         self.on_floor = False
+        self.delay = 0.0
+        self.jump_delay = 0.0
 
         self.hp = 100
         self.dead = False
@@ -210,10 +276,7 @@ class Hammer_Kirby:
             'attack_e': load_image('Hammer_Kirby_attack_e.png'),
             'attack_q1': load_image('Hammer_Kirby_attack_q1.png'),
             'attack_q2': load_image('Hammer_Kirby_attack_q2.png'),
-            'jump_start': load_image('Hammer_Kirby_jump_start.png'),
-            'jumping': load_image('Hammer_Kirby_jumping.png'),
-            'jumping_tired': load_image('Hammer_Kirby_jumping_tired.png'),
-            'jump_finish': load_image('Hammer_Kirby_jump_finish.png'),
+            'jump': load_image('Hammer_Kirby_jump.png'),
         }
 
         self.frames = {
@@ -258,60 +321,45 @@ class Hammer_Kirby:
                 ('attack_q2', 93, 3, 33, 33),
                 ('attack_q2', 130, 0, 37, 36),
             ],
-            'jump_start': [
-                ('jump_start', 9, 6, 35, 45),
-                ('jump_start', 48, 10, 31, 41),
-                ('jump_start', 83, 4, 36, 47),
-                ('jump_start', 123, 4, 38, 47),
-                ('jump_start', 165, 4, 43, 47),
-                ('jump_start', 216, 1, 40, 50),
-            ],
-            'jumping': [
-                ('jumping', 2, 3, 40, 54),
-                ('jumping', 46, 3, 40, 54),
-                ('jumping', 90, 3, 40, 54),
-                ('jumping', 134, 3, 40, 54),
-                ('jumping', 178, 3, 41, 54),
-                ('jumping', 223, 3, 41, 54),
-            ],
-            'jump_tired': [
-                ('jump_tired', 3, 3, 36, 56),
-                ('jump_tired', 42, 3, 37, 56),
-                ('jump_tired', 82, 3, 38, 56),
-                ('jump_tired', 123, 3, 40, 56),
-                ('jump_tired', 166, 3, 39, 56),
-            ],
-            'jump_finish': [
-                ('jump_finish', 2, 3, 42, 48),
-                ('jump_finish', 48, 5, 41, 46),
-                ('jump_finish', 93, 4, 38, 47),
-                ('jump_finish', 135, 3, 37, 48),
+
+            'jump': [
+                ('jump', 5, 0, 38, 70),
+                ('jump',56, 0, 35, 70),
+                ('jump',104, 0, 37, 70),
+                ('jump',158, 0, 34, 70)
             ],
             'hit': [
                 ('hit', 3, 4, 45, 34),
             ]
         }
 
+        self.cur_state = 'attack_e'
+
         self.STAND = Stand(self)
         self.WALK = Walk(self)
         self.ATTACK = Attack(self)
-        self.JUMP = Jump()
+        self.JUMP = Jump(self)
         self.HIT = Hit(self)
-
-        self.cur_state = 'attack_e'
+        self.LAND = LAND(self)
 
         self.state_machine = StateMachine(
             self.STAND,
             {
-                self.STAND: {d_down: self.WALK, a_down: self.WALK, e_down: self.ATTACK,q_down: self.ATTACK,
-                             j_down: self.WALK, l_down: self.WALK, u_down: self.ATTACK,o_down: self.ATTACK,
+                self.STAND: {d_down: self.WALK, a_down: self.WALK, e_down: self.ATTACK,
+                             j_down: self.WALK, l_down: self.WALK, u_down: self.ATTACK,
+                             w_down: self.JUMP, i_down: self.JUMP,  # lambda e: e[0] == 'LANDING': self.LANDING,
                              lambda e: e[0] == 'HIT': self.HIT},
-                self.WALK: {d_up: self.STAND, a_up: self.STAND, e_down: self.ATTACK,q_down: self.ATTACK,
-                            j_up: self.STAND, l_up: self.STAND, u_down: self.ATTACK,o_down: self.ATTACK,
+                self.WALK: {d_up: self.STAND, a_up: self.STAND, e_down: self.ATTACK,
+                            j_up: self.STAND, l_up: self.STAND, u_down: self.ATTACK,
+                            w_down: self.JUMP, i_down: self.JUMP,  # lambda e: e[0] == 'LANDING': self.LANDING,
                             lambda e: e[0] == 'HIT': self.HIT},
-                self.ATTACK: {lambda e: e[0] == 'ATTACK_DONE': self.STAND, q_up: self.STAND, o_up: self.STAND,
-                              lambda e: e[0] == 'HIT': self.HIT},
-                self.HIT:    {lambda e: e[0] == 'HIT_DONE': self.STAND},
+                self.ATTACK: {lambda e: e[0] == 'ATTACK_DONE': self.STAND, lambda e: e[0] == 'HIT': self.HIT},
+                self.HIT: {lambda e: e[0] == 'HIT_DONE': self.STAND},
+                self.JUMP: {d_down: self.JUMP, a_down: self.JUMP, j_down: self.JUMP, l_down: self.JUMP,
+                            lambda e: e[0] == 'HIT': self.HIT,
+                            lambda e: e[0] == 'LAND': self.LAND},
+                self.LAND: {lambda e: e[0] == 'JUMP_DONE': self.STAND, lambda e: e[0] == 'HIT': self.HIT},
+
             }
         )
 
@@ -330,8 +378,12 @@ class Hammer_Kirby:
 
     def update(self):
         self.state_machine.update()
+        if self.jump_delay > 0:
+            self.jump_delay -= game_framework.frame_time
         if not self.on_floor:
             self.gravity()
+
+
         if self.on_floor:
             self.yv = 0.0
 
@@ -374,9 +426,14 @@ class Hammer_Kirby:
         draw_rectangle(*self.get_bb())
 
     def handle_collision(self, group, other):
-        if group =='body:floor':
-            self.on_floor = True
-            self.yv = 0.0
+        if group == 'body:floor':
+            if self.jump_delay > 0:
+                return
+
+            if not self.on_floor:
+                self.on_floor = True
+                self.yv = 0.0
+                self.state_machine.handle_state_event(('LAND', None))
 
     def spawn_attack_box(self):
         if self.target is None:

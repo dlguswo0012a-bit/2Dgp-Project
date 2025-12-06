@@ -175,43 +175,6 @@ class LAND:
         img, x, y, w, h = self.D.frames['jump'][2]
         self.D.draw_frame(img, x, y, w, h)
 
-class Falling:
-    def __init__(self, D):
-        self.D = D
-    def enter(self, e):
-        player = e[0]
-        self.D.frame = 1
-        if player == 'INPUT_P1':
-            if d_down(e) or a_up(e):
-                self.D.dir = 1
-                self.D.face = 1
-            elif a_down(e) or d_up(e):
-                self.D.dir = -1
-                self.D.face = -1
-        elif player == 'INPUT_P2':
-            if l_down(e) or j_up(e):
-                self.D.dir = 1
-                self.D.face = 1
-            elif j_down(e) or l_up(e):
-                self.D.dir = -1
-                self.D.face = -1
-
-    def exit(self, e): pass
-
-    def do(self):
-        self.D.y += self.D.yv * game_framework.frame_time *5.0
-        self.D.yv -= GRAVITY * game_framework.frame_time*5.0
-
-        self.D.frame = 1
-
-        if not self.D.on_floor:
-            self.D.frame = 1
-            self.D.x += self.D.dir * 150 * game_framework.frame_time
-            print("FALLING")
-    def draw(self):
-        img, x, y, w, h = self.D.frames['jump'][self.D.frame]
-        self.D.draw_frame(img, x, y, w, h)
-
 class Attack_Box:
     def __init__(self, x, y, w, h, owner):
         self.x, self.y = x+50, y
@@ -321,7 +284,6 @@ class King_DDD:
         self.JUMP = Jump(self)
         self.HIT = Hit(self)
         self.LAND = LAND(self)
-        self.FALLING = Falling(self)
 
         self.state_machine = StateMachine(
             self.STAND,
@@ -390,13 +352,10 @@ class King_DDD:
             if self.jump_delay > 0:
                 return
 
-            if isinstance(self.state_machine.cur_state, Jump):
+            if not self.on_floor:
                 self.on_floor = True
                 self.yv = 0.0
                 self.state_machine.handle_state_event(('LAND', None))
-            else:
-                self.on_floor = True
-                self.yv = 0.0
 
     def spawn_attack_box(self):
         if self.target is None:

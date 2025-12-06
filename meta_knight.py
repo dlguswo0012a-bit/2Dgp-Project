@@ -174,48 +174,6 @@ class Jump:
         img, x, y, w, h = self.mk.frames['jump'][self.mk.frame]
         self.mk.draw_frame(img, x, y, w, h)
 
-
-class LANDING:
-    def __init__(self, mk):
-        self.mk = mk
-
-    def enter(self, e):
-        player = e[0]
-
-        if player == 'INPUT_P1':
-            if d_down(e) or a_up(e):
-                self.mk.dir = 1
-                self.mk.face = 1
-            elif a_down(e) or d_up(e):
-                self.mk.dir = -1
-                self.mk.face = -1
-        elif player == 'INPUT_P2':
-            if l_down(e) or j_up(e):
-                self.mk.dir = 1
-                self.mk.face = 1
-            elif j_down(e) or l_up(e):
-                self.mk.dir = -1
-                self.mk.face = -1
-        if not self.mk.on_floor:
-            self.mk.frame = 2
-            self.mk.on_floor = False
-
-    def exit(self, e):
-        pass
-
-    def do(self):
-        self.mk.y += self.mk.yv * game_framework.frame_time * 5.0
-        self.mk.yv -= GRAVITY * game_framework.frame_time * 5.0
-
-        if self.mk.on_floor:
-            self.mk.frame = 2
-            self.mk.x += self.mk.dir * 100 * game_framework.frame_time
-
-    def draw(self):
-        img, x, y, w, h = self.mk.frames['jump'][self.mk.frame]
-        self.mk.draw_frame(img, x, y, w, h)
-
-
 class LAND:
     def __init__(self, mk):
         self.mk = mk
@@ -338,7 +296,6 @@ class Meta_knight:
         self.HIT = Hit(self)
         self.JUMP = Jump(self)
         self.LAND = LAND(self)
-        self.LANDING = LANDING(self)
 
         self.state_machine = StateMachine(
             self.STAND,
