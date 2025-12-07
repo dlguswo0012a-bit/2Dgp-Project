@@ -201,10 +201,10 @@ def init():
     p2 = create_character(selected_p2[0])
 
     p1.x = 400
-    p1.y = 150
+    p1.y = 250
 
-    p2.x = 700
-    p2.y = 200
+    p2.x = 800
+    p2.y = 250
     p2.face = -1
 
     game_world.add_object(p1,1)
@@ -216,17 +216,28 @@ def init():
     game_world.add_collision_pair('attack:body', p1.attack_box, p2)
     game_world.add_collision_pair('attack:body', p2.attack_box, p1)
 
-    floor1 = Floor(400,30)
+    floor1 = Floor(300, 130,300, 90)
     game_world.add_object(floor1,0)
-    floor2 = Floor(1200,90)
+    floor2 = Floor(900,130, 300,90)
     game_world.add_object(floor2,0)
+    floor3 = Floor(100, 250, 300, 90)
+    game_world.add_object(floor3, 0)
+    floor4 = Floor(1100, 250, 300, 90)
+    game_world.add_object(floor4, 0)
+    floor5 = Floor(600, 260, 200, 90)
+    game_world.add_object(floor5, 0)
 
     game_world.add_collision_pair('body:floor', p1, floor1)
     game_world.add_collision_pair('body:floor', p1, floor2)
+    game_world.add_collision_pair('body:floor', p1, floor3)
+    game_world.add_collision_pair('body:floor', p1, floor4)
+    game_world.add_collision_pair('body:floor', p1, floor5)
 
     game_world.add_collision_pair('body:floor', p2, floor1)
     game_world.add_collision_pair('body:floor', p2, floor2)
-
+    game_world.add_collision_pair('body:floor', p2, floor3)
+    game_world.add_collision_pair('body:floor', p2, floor4)
+    game_world.add_collision_pair('body:floor', p2, floor5)
 p1_swap = False
 p2_swap = False
 
@@ -235,6 +246,7 @@ def update():
     global p1_swap, p2_swap
     if game_over:
         return
+
 
     p1.on_floor = False
     p2.on_floor = False

@@ -1,18 +1,19 @@
 from pico2d import *
 
 class Floor:
-    def __init__(self, x, y):
+    def __init__(self, x, y, width, height):
         self.x, self.y = x, y
+        self.w=width
         self.image = load_image('grass.png')
 
-        self.w, self.h = self.image.w, self.image.h-15
+        self.h = self.image.h-15
 
 
     def update(self):
         pass
 
     def draw(self):
-        self.image.draw(self.x, self.y)
+        self.image.draw(self.x, self.y,self.w, self.h)
         self.draw_bb()
 
     def get_bb(self):
