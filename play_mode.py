@@ -29,6 +29,22 @@ game_over = False
 p1_hp = [100]
 p2_hp = [100]
 
+hp_bar = None
+
+def draw_hp_bar(x, y, hp, img):
+    block_size = 50
+    max_blocks = 10
+    filled_blocks = hp // 10
+
+    for i in range(filled_blocks):
+        bx = x + i * block_size
+        img.draw(bx + 25, y + 25, block_size, block_size)
+
+
+    draw_rectangle(x, y, x + block_size * max_blocks, y + block_size)
+
+
+
 def set_selected_characters(p1_list, p2_list):
     global selected_p1, selected_p2, selected_p1_org, selected_p2_org
     selected_p1 = p1_list[:]
@@ -176,9 +192,10 @@ def handle_events():
             p2.handle_event_p2(event)
 
 def init():
-    global p1, p2, floor1, floor2, background
+    global p1, p2, floor1, floor2, background, hp_bar, selected_p1, selected_p2
 
     background = load_image('Background.png')
+    hp_bar = load_image('hp.png')
 
     p1 = create_character(selected_p1[0])
     p2 = create_character(selected_p2[0])
@@ -267,6 +284,8 @@ def update():
 def draw():
     clear_canvas()
     background.draw(600, 300, 1200, 600)
+    draw_hp_bar(50, 530, p1_hp[0], hp_bar)  # Player 1
+    draw_hp_bar(650, 530, p2_hp[0], hp_bar)  # Player 2
     game_world.render()
     update_canvas()
 
