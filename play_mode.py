@@ -31,6 +31,15 @@ p2_hp = [100]
 
 hp_bar = None
 
+def draw_win_icon(x1, y1, win_count, icon_img):
+    icon_size = 20
+    spacing = 10
+
+    for i in range(win_count):
+        icon_x = x1 + i * (icon_size + spacing) + icon_size // 2
+        icon_y = y1 + icon_size // 2
+        icon_img.draw(icon_x, icon_y, icon_size, icon_size)
+
 def draw_hp_bar(x, y, hp, img):
     block_size = 50
     max_blocks = 10
@@ -298,6 +307,10 @@ def draw():
     background.draw(600, 300, 1200, 600)
     draw_hp_bar(50, 530, p1_hp[0], hp_bar)  # Player 1
     draw_hp_bar(650, 530, p2_hp[0], hp_bar)  # Player 2
+
+    draw_win_icon(50, 510, p1_win, hp_bar)  # P1
+    draw_win_icon(650, 510, p2_win, hp_bar)  # P2
+
     game_world.render()
     update_canvas()
 

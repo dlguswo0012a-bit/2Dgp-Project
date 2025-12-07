@@ -309,6 +309,8 @@ class Hammer_Kirby:
         self.knockback_dir = 0
         self.knockback_timer = 0.0
 
+        self.knockback_count = 0
+        self.power_knockback = 3
 
         self.images = {
             'stand': load_image('Hammer_Kirby_stand.png'),
@@ -460,9 +462,17 @@ class Hammer_Kirby:
             if hasattr(other, 'owner'):
                 if other.owner == self:
                     return
-            self.state_machine.handle_state_event(('HIT', None))
-            if not self.no_damage:
+            if not self.no_damage and self.knockback_count < self.power_knockback:
                 self.knockback_power = 100.0
+                self.knockback_count += 1
+                if other.x > self.x:
+                    self.knockback_dir = -1
+                else:
+                    self.knockback_dir = 1
+                self.knockback_timer = 0.2
+            elif not self.no_damage and self.knockback_count == self.power_knockback:
+                self.knockback_power = 300.0
+                self.knockback_count = 0
                 if other.x > self.x:
                     self.knockback_dir = -1
                 else:

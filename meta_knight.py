@@ -327,6 +327,9 @@ class Meta_knight:
         self.knockback_dir = 0
         self.knockback_timer = 0.0
 
+        self.knockback_count = 0
+        self.power_knockback = 3
+
         self.images = {
             'stand': load_image('meta_night_stand.png'),
             'walk': load_image('meta_night_walk.png'),
@@ -420,7 +423,7 @@ class Meta_knight:
         img = self.images[key]
 
         scaled_h = h * self.scale
-        if key == 'attack' or key == 'jump':
+        if key == 'attack' or key == 'jump' or key == 'hit':
             self.scale = 1.5
             scaled_h = h * self.scale
         else:
@@ -437,9 +440,9 @@ class Meta_knight:
         self.state_machine.update()
         if self.jump_delay > 0:
             self.jump_delay -= game_framework.frame_time
+
         if not self.on_floor:
             self.gravity()
-            #self.state_machine.handle_state_event(('LANDING', None))
 
         if self.on_floor:
             self.yv = 0.0
@@ -471,9 +474,17 @@ class Meta_knight:
             if hasattr(other, 'owner'):
                 if other.owner == self:
                     return
-            self.state_machine.handle_state_event(('HIT', None))
-            if not self.no_damage:
+            if not self.no_damage and self.knockback_count -1 < self.power_knockback:
                 self.knockback_power = 100.0
+                self.knockback_count += 1
+                if other.x > self.x:
+                    self.knockback_dir = -1
+                else:
+                    self.knockback_dir = 1
+                self.knockback_timer = 0.2
+            elif not self.no_damage and self.knockback_count == self.power_knockback:
+                self.knockback_power = 300.0
+                self.knockback_count = 0
                 if other.x > self.x:
                     self.knockback_dir = -1
                 else:
