@@ -310,6 +310,10 @@ def update():
 
     p1.on_floor = False
     p2.on_floor = False
+    if p1_hp[0] == 0 and p2_hp[0] == 0:
+        print("무승부")
+        final_round()
+        return
     if p1_hp[0] <= 0:
         print("P1 모든 캐릭터 사망")
         p2_win += 1
