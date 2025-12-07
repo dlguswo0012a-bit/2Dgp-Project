@@ -218,13 +218,13 @@ class Attack_Box:
         if self.owner.face == 1:
             self.x = self.owner.x + 40
         else:
-            self.x = self.owner.x - 40
+            self.x = self.owner.x - 65
         self.y = self.owner.y
 
     def draw(self):
         draw_rectangle(*self.get_bb())
     def get_bb(self):
-        return self.x - self.w // 2, self.y - self.h // 2, self.x + self.w // 2, self.y + self.h // 2
+        return (self.x - self.w // 2), self.y -  self.h*1.5, (self.x + self.w // 2)+10, self.y + self.h*1.5
     def handle_collision(self, group, other):
         if other.no_damage:
             return

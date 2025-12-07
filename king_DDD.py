@@ -79,6 +79,9 @@ class Attack:
     def __init__(self, D):
         self.D = D
         self.attack_spawn = False
+        self.impact_img = load_image('attack_star_impact.png')
+        self.impact_start_time = 0.0
+        self.impact_duration = 0.2
     def enter(self, e):
         self.D.frame = 0
         self.attack_spawn = False
@@ -96,6 +99,7 @@ class Attack:
         self.D.frame += n * ACTION_PER_TIME * game_framework.frame_time
         idx = int(self.D.frame)
         if idx == 3 and not self.attack_spawn:
+            self.impact_start_time = get_time()
             self.attack_spawn = True
             if self.D.attack_box is None:
                 self.D.spawn_attack_box(damage = 20)
@@ -104,6 +108,18 @@ class Attack:
     def draw(self):
         img, x, y, w, h = self.D.get_current_frame('attack')
         self.D.draw_frame(img, x, y, w, h)
+        now = get_time()
+        if now - self.impact_start_time < self.impact_duration:
+            offset_x = 60
+            if self.D.face == 1:
+                fx = self.D.x + offset_x
+            else:
+                fx = self.D.x - offset_x
+            fx = self.D.x + 40 if self.D.face == 1 else self.D.x - 40
+            if self.D.face == 1:
+                self.impact_img.draw(fx, self.D.y, 60, 60)
+            else:
+                self.impact_img.composite_draw(fx, 'h', self.D.x - 60, self.D.y, 60, 60)
 
 
 class Hit:
@@ -190,12 +206,12 @@ class Attack_Box:
         if self.owner.face == 1:
             self.x = self.owner.x + 40
         else:
-            self.x = self.owner.x - 40
+            self.x = self.owner.x - 70
         self.y = self.owner.y
     def draw(self):
         draw_rectangle(*self.get_bb())
     def get_bb(self):
-        return self.x - self.w // 2, self.y - self.h // 2, self.x + self.w // 2, self.y + self.h // 2
+        return (self.x - self.w // 2), self.y - self.h * 1.5, (self.x + self.w // 2) + 10, self.y + self.h * 1.5
     def handle_collision(self, group, other):
         if other.no_damage:
             print('무적')
@@ -229,6 +245,9 @@ class Counter:
         self.D = D
         self.attack_spawn = False
         self.counter_start_time = 0.0
+        self.impact_img = load_image('attack_star_impact.png')
+        self.impact_start_time = 0.0
+        self.impact_duration = 0.2
     def enter(self, e):
         self.D.frame = 0
         self.D.no_damage = True
@@ -249,6 +268,7 @@ class Counter:
         self.D.frame += n * ACTION_PER_TIME * game_framework.frame_time
         idx = int(self.D.frame)
         if idx == 3 and not self.attack_spawn:
+            self.impact_start_time = get_time()
             self.attack_spawn = True
             if self.D.attack_box is None:
                 self.D.spawn_attack_box(damage = 30)
@@ -259,6 +279,18 @@ class Counter:
     def draw(self):
         img, x, y, w, h = self.D.get_current_frame('attack')
         self.D.draw_frame(img, x, y, w, h)
+        now = get_time()
+        if now - self.impact_start_time < self.impact_duration:
+            offset_x = 60
+            if self.D.face == 1:
+                fx = self.D.x + offset_x
+            else:
+                fx = self.D.x - offset_x
+            fx = self.D.x + 40 if self.D.face == 1 else self.D.x - 40
+            if self.D.face == 1:
+                self.impact_img.draw(fx, self.D.y, 60, 60)
+            else:
+                self.impact_img.composite_draw(fx, 'h', self.D.x - 60, self.D.y, 60, 60)
 
 
 # ==================== 본체 ========================
@@ -299,7 +331,8 @@ class King_DDD:
             'walk': load_image('king_dedede_walk.png'),
             'hit': load_image('king_dedede_hit.png'),
             'attack': load_image('king_dedede_attack.png'),
-            'jump': load_image('king_dedede_jump.png')
+            'jump': load_image('king_dedede_jump.png'),
+            'impact': load_image('attack_star_impact.png'),
         }
 
         self.frames = {
