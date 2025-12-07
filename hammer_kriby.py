@@ -440,9 +440,9 @@ class Hammer_Kirby:
         self.draw_bb()
 
     def get_bb(self):
-        w = 30
+        w = 60
         h = 40
-        return self.x - w // 2, self.y - h // 2, self.x + w // 2, self.y + h // 2
+        return self.x - w // 2, self.y - h // 2-10, self.x + w // 2 - 10, self.y + h // 2-10
 
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
@@ -467,6 +467,7 @@ class Hammer_Kirby:
         self.attack_box = Attack_Box(box_x, box_y, 30, 20, self, damage)
         game_world.add_object(self.attack_box, 1)
         game_world.add_collision_pair('attack:body', self.attack_box, self.target)
+
     def gravity(self):
         self.yv -= GRAVITY * game_framework.frame_time
         self.y += self.yv* game_framework.frame_time*ACTION_PER_TIME
