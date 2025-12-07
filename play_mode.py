@@ -164,8 +164,7 @@ def reset_round():
     swap_count_p2 = 0
     selected_p1 = selected_p1_org[:]
     selected_p2 = selected_p2_org[:]
-    p1_win = 0
-    p2_win = 0
+
     timer = round_time
 
     game_world.clear()
@@ -288,13 +287,18 @@ def update():
         if p1_hp[0] > p2_hp[0]:
             p1_win += 1
             print("P1 타임아웃 승리!")
+            final_round()
+            return
         elif p2_hp[0] > p1_hp[0]:
             p2_win += 1
             print("P2 타임아웃 승리!")
+            final_round()
+            return
         else:
             print("무승부 (타임아웃)")
-        final_round()
-        return
+            final_round()
+            return
+
 
 
     p1.on_floor = False
