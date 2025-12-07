@@ -396,8 +396,8 @@ class King_DDD:
 
     def get_bb(self):
         w = 60
-        h = 40
-        return self.x - w // 2, self.y - h // 2, self.x + w // 2, self.y + h // 2
+        h = 60
+        return self.x - w // 2, self.y - h // 2+10, self.x + w // 2, self.y + h // 2+10
 
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
