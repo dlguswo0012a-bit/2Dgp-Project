@@ -98,6 +98,7 @@ def choice_character(char,p):
         p1.x, p1.y = old_x, old_y
         p1.face = old_face
         p1.hp = p1_hp
+        p1.player = 'p1'
         game_world.add_object(p1, 1)
 
     elif p is p2:
@@ -111,6 +112,7 @@ def choice_character(char,p):
         p2.x, p2.y = old_x, old_y
         p2.face = old_face
         p2.hp = p2_hp
+        p2.player = 'p2'
         game_world.add_object(p2, 1)
 
     p1.target=p2
@@ -223,7 +225,7 @@ def handle_events():
             p2.handle_event_p2(event)
 
 def init():
-    global p1, p2, floor1, floor2, background, hp_bar, selected_p1, selected_p2, timer
+    global p1, p2, floor1, floor2, background, hp_bar, selected_p1, selected_p2, timer,floor3, floor4, floor5
 
     background = load_image('Background.png')
     hp_bar = load_image('hp.png')

@@ -292,6 +292,8 @@ class King_DDD:
 
         self.knockback_count = 0
         self.power_knockback = 3
+
+        self.player = None
         self.images = {
             'stand': load_image('king_dedede_stand.png'),
             'walk': load_image('king_dedede_walk.png'),
@@ -389,6 +391,13 @@ class King_DDD:
         if self.knockback_timer > 0.0:
             self.x += self.knockback_dir * self.knockback_power * game_framework.frame_time
             self.knockback_timer -= game_framework.frame_time
+        if self.y < 50:
+            self.y = 300
+            self.x = 600
+        self.x = clamp(50, self.x, 1150)
+
+        self.x = clamp(50, self.x, 1150)
+
 
     def handle_event_p1(self, event):
         if event.type ==SDL_KEYDOWN and event.key == SDLK_q:
