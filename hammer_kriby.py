@@ -1,6 +1,7 @@
 from pico2d import *
 import game_framework
 import game_world
+import play_mode
 from state_machine import StateMachine
 
 TIME_PER_ACTION = 0.5
@@ -102,7 +103,7 @@ class Attack:
         if idx == 2 and not self.attack_spawn:
             self.attack_spawn = True
             if self.hk.attack_box is None:
-                self.hk.spawn_attack_box()
+                self.hk.spawn_attack_box(damage = 20)
 
         if self.hk.frame >= n:
             self.hk.state_machine.handle_state_event(('ATTACK_DONE', None))
@@ -189,11 +190,12 @@ class LAND:
 
 
 class Attack_Box:
-    def __init__(self, x, y, w, h, owner):
+    def __init__(self, x, y, w, h, owner,damage):
         self.x, self.y = x + 50, y
         self.w, self.h = w, h
         self.owner = owner
         self.hit = False
+        self.damage = damage
 
     def update(self):
         if self.owner.face == 1:
@@ -215,13 +217,19 @@ class Attack_Box:
             return
         print('충돌')
         other.state_machine.handle_state_event(('HIT', None))
-        other.hp -= 5
-        print(f'HP: {other.hp}')
 
-        if other.hp <= 0:
-            other.dead = True
-            other.hp = 100
-            self.owner.hp = 100
+        if other is play_mode.p1:
+            play_mode.p1_hp[0] -= self.damage
+            print(f"P1 HP = {play_mode.p1_hp[0]}")
+            if play_mode.p1_hp[0] <= 0:
+                other.dead = True
+        else:
+            play_mode.p2_hp[0] -= self.damage
+            print(f"P2 HP = {play_mode.p2_hp[0]}")
+            if play_mode.p2_hp[0] <= 0:
+                other.dead = True
+
+
         self.hit = True
 
         game_world.remove_object(self)
@@ -260,7 +268,7 @@ class Counter:
         if idx == 2 and not self.attack_spawn:
             self.attack_spawn = True
             if self.hk.attack_box is None:
-                self.hk.spawn_attack_box()
+                self.hk.spawn_attack_box(damage = 30)
 
         if self.hk.frame >= n:
             self.hk.no_damage = False
@@ -288,7 +296,7 @@ class Hammer_Kirby:
         self.delay = 0.0
         self.jump_delay = 0.0
 
-        self.hp = 100
+
         self.dead = False
         self.swap = False
         self.no_damage = False
@@ -445,14 +453,14 @@ class Hammer_Kirby:
                 self.yv = 0.0
                 self.state_machine.handle_state_event(('LAND', None))
 
-    def spawn_attack_box(self):
+    def spawn_attack_box(self, damage):
         if self.target is None:
             return
 
         box_x = self.x + 40 if self.face == 1 else self.x - 40
         box_y = self.y
 
-        self.attack_box = Attack_Box(box_x, box_y, 30, 20, self)
+        self.attack_box = Attack_Box(box_x, box_y, 30, 20, self, damage)
         game_world.add_object(self.attack_box, 1)
         game_world.add_collision_pair('attack:body', self.attack_box, self.target)
     def gravity(self):
