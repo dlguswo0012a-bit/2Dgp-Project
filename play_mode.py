@@ -14,6 +14,9 @@ from hammer_kriby import Hammer_Kirby
 background = None
 p1 = None
 p2 = None
+arrow_p1 = None
+arrow_p2 = None
+
 
 selected_p1 = []
 selected_p2 = []
@@ -225,10 +228,12 @@ def handle_events():
             p2.handle_event_p2(event)
 
 def init():
-    global p1, p2, floor1, floor2, background, hp_bar, selected_p1, selected_p2, timer,floor3, floor4, floor5
+    global p1, p2, floor1, floor2, background, hp_bar, selected_p1, selected_p2, timer,floor3, floor4, floor5, arrow_p1, arrow_p2
 
     background = load_image('Background.png')
     hp_bar = load_image('hp.png')
+    arrow_p1 = load_image('p1.png')
+    arrow_p2 = load_image('p2.png')
 
     p1 = create_character(selected_p1[0])
     p2 = create_character(selected_p2[0])
@@ -362,6 +367,10 @@ def draw():
     timer_font = load_font('ENCR10B.TTF', 60)
     timer_font.draw(570, 550, f"{int(timer)}", (255, 255, 0))
 
+    if hasattr(p1, 'x') and hasattr(p1, 'y') :
+        arrow_p1.draw(p1.x, p1.y + 80, 30, 30)
+    if hasattr(p2, 'x') and hasattr(p2, 'y') :
+        arrow_p2.draw(p2.x, p2.y + 80, 30, 30)
 
     game_world.render()
     update_canvas()

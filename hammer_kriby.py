@@ -358,6 +358,7 @@ class Hammer_Kirby:
             'attack': load_image('Hammer_Kirby_attack_e.png'),
             'jump': load_image('Hammer_Kirby_jump.png'),
             'impact': load_image('attack_star_impact.png'),
+
         }
 
         self.frames = {
@@ -494,6 +495,7 @@ class Hammer_Kirby:
     def draw(self):
         self.state_machine.draw()
         self.draw_bb()
+
 
     def get_bb(self):
         w = 60

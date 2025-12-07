@@ -334,6 +334,7 @@ class King_DDD:
             'attack': load_image('king_dedede_attack.png'),
             'jump': load_image('king_dedede_jump.png'),
             'impact': load_image('attack_star_impact.png'),
+
         }
 
         self.frames = {

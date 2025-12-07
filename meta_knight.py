@@ -342,6 +342,7 @@ class Meta_knight:
             'impact': load_image('meta_night_attack_impact.png'),
             'jump': load_image('meta_knight_jump.png'),
 
+
         }
 
         self.frames = {
