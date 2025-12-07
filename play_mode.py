@@ -34,7 +34,7 @@ hp_bar = None
 swap_count_p1 = 0
 swap_count_p2 = 0
 
-round_time = 10
+round_time = 60
 timer = round_time
 
 
