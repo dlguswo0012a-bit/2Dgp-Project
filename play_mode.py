@@ -34,7 +34,7 @@ hp_bar = None
 swap_count_p1 = 0
 swap_count_p2 = 0
 
-round_time = 60
+round_time = 10
 timer = round_time
 
 
@@ -283,7 +283,7 @@ def update():
 
 
     timer -=game_framework.frame_time
-    if round_time <= 0:
+    if timer <= 0:
         print("타임아웃!")
         if p1_hp[0] > p2_hp[0]:
             p1_win += 1
@@ -353,7 +353,7 @@ def draw():
     draw_win_icon(50, 510, p1_win, hp_bar)  # P1
     draw_win_icon(650, 510, p2_win, hp_bar)  # P2
 
-    timer_font = load_font('ENCR10B.TTF', 16)
+    timer_font = load_font('ENCR10B.TTF', 60)
     timer_font.draw(600, 550, f"{int(timer)}", (255, 255, 0))
 
 
