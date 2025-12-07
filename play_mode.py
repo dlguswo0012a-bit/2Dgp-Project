@@ -31,6 +31,10 @@ p2_hp = [100]
 
 hp_bar = None
 
+swap_count_p1 = 0
+swap_count_p2 = 0
+
+
 def draw_win_icon(x1, y1, win_count, icon_img):
     icon_size = 20
     spacing = 10
@@ -128,23 +132,27 @@ def choice_character(char,p):
     char.state_machine.cur_state = char.STAND
 
 def reset_game():
-    global selected_p1, selected_p2, selected_p1_org, selected_p2_org, p1_win, p2_win, game_over
+    global selected_p1, selected_p2, selected_p1_org, selected_p2_org, p1_win, p2_win, game_over, swap_count_p1, swap_count_p2
     selected_p1 = []
     selected_p2 = []
     selected_p1_org = []
     selected_p2_org = []
     p1_win = 0
     p2_win = 0
+    swap_count_p2 = 0
+    swap_count_p1 = 0
+
     game_over = False
     character_select.p1_choices.clear()
     character_select.p2_choices.clear()
     game_world.clear()
 
 def reset_round():
-    global selected_p1, selected_p2
+    global selected_p1, selected_p2, p1_win, p2_win
     selected_p1 = selected_p1_org[:]
     selected_p2 = selected_p2_org[:]
-
+    p1_win = 0
+    p2_win = 0
     game_world.clear()
     init()
 
@@ -252,7 +260,7 @@ p2_swap = False
 
 def update():
     global p1, p2, selected_p1, selected_p2, game_over, p1_win, p2_win
-    global p1_swap, p2_swap
+    global p1_swap, p2_swap, swap_count_p1, swap_count_p2
     if game_over:
         return
 
@@ -270,7 +278,8 @@ def update():
         final_round()
         return
     if p1.swap and not p1_swap:
-        if len(selected_p1) > 1:
+        swap_count_p1 += 1
+        if len(selected_p1) > 1 and swap_count_p1 <= 3:
             selected_p1.append(selected_p1[0])
             selected_p1.pop(0)
             next_char = create_character(selected_p1[0])
@@ -282,7 +291,8 @@ def update():
 
 
     if p2.swap and not p2_swap:
-        if len(selected_p2) > 1:
+        swap_count_p2 += 1
+        if len(selected_p2) > 1 and swap_count_p2 <=3:
             selected_p2.append(selected_p2[0])
             selected_p2.pop(0)
             print(selected_p2)
