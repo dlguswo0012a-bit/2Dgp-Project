@@ -218,6 +218,8 @@ class Attack_Box:
     def get_bb(self):
         return (self.x - self.w // 2)-10, self.y , (self.x + self.w // 2)+5, self.y + self.h*2.5
     def handle_collision(self, group, other):
+        if other.no_damage:
+            return
         if self.hit:
             return
         if other == self.owner:
@@ -252,6 +254,7 @@ class Counter:
 
         self.attack_spawn = False
     def exit(self, e):
+        self.mk.no_damage = True
         if self.mk.attack_box:
             game_world.remove_object(self.mk.attack_box)
             self.mk.attack_box = None
@@ -267,6 +270,7 @@ class Counter:
                 self.mk.spawn_attack_box()
 
         if self.mk.frame >= n:
+            self.mk.no_damage = False
             self.mk.state_machine.handle_state_event(('ATTACK_DONE', None))
     def draw(self):
         img, ax, ay, aw, ah = self.mk.get_current_frame('attack')
@@ -306,6 +310,7 @@ class Meta_knight:
         self.hp = 100
         self.dead = False
         self.swap = False
+        self.no_damage = False
 
         self.scale = 2
 

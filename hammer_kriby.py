@@ -207,9 +207,11 @@ class Attack_Box:
     def get_bb(self):
         return self.x - self.w // 2, self.y - self.h // 2, self.x + self.w // 2, self.y + self.h // 2
     def handle_collision(self, group, other):
+        if other.no_damage:
+            return
         if self.hit:
             return
-        if other ==self.owner:
+        if other == self.owner:
             return
         print('충돌')
         other.state_machine.handle_state_event(('HIT', None))
@@ -235,6 +237,7 @@ class Counter:
     def enter(self, e):
         self.hk.frame = 0
         self.attack_spawn = False
+        self.hk.no_damage = True
 
         if self.hk.attack_box:
             game_world.remove_object(self.hk.attack_box)
@@ -260,6 +263,7 @@ class Counter:
                 self.hk.spawn_attack_box()
 
         if self.hk.frame >= n:
+            self.hk.no_damage = False
             self.hk.state_machine.handle_state_event(('ATTACK_DONE', None))
 
     def draw(self):
@@ -287,6 +291,7 @@ class Hammer_Kirby:
         self.hp = 100
         self.dead = False
         self.swap = False
+        self.no_damage = False
 
         self.images = {
             'stand': load_image('Hammer_Kirby_stand.png'),

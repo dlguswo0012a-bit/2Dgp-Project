@@ -195,6 +195,9 @@ class Attack_Box:
     def get_bb(self):
         return self.x - self.w // 2, self.y - self.h // 2, self.x + self.w // 2, self.y + self.h // 2
     def handle_collision(self, group, other):
+        if other.no_damage:
+            print('무적')
+            return
         if self.hit:
             return
         if other == self.owner:
@@ -219,8 +222,10 @@ class Counter:
     def __init__(self, D):
         self.D = D
         self.attack_spawn = False
+
     def enter(self, e):
         self.D.frame = 0
+        self.D.no_damage = True
         self.attack_spawn = False
         if self.D.attack_box:
             game_world.remove_object(self.D.attack_box)
@@ -240,6 +245,7 @@ class Counter:
             if self.D.attack_box is None:
                 self.D.spawn_attack_box()
         if self.D.frame >= n:
+            self.D.no_damage = False
             self.D.state_machine.handle_state_event(('ATTACK_DONE', None))
     def draw(self):
         img, x, y, w, h = self.D.get_current_frame('attack')
@@ -270,6 +276,7 @@ class King_DDD:
         self.hp = 100
         self.dead = False
         self.swap = False
+        self.no_damage = False
 
         self.images = {
             'stand': load_image('king_dedede_stand.png'),
@@ -356,6 +363,7 @@ class King_DDD:
 
     def update(self):
         self.state_machine.update()
+
         if self.jump_delay > 0:
             self.jump_delay -= game_framework.frame_time
         if not self.on_floor:
