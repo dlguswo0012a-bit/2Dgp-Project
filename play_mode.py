@@ -134,6 +134,8 @@ def final_round():
     else:
         print("다음 라운드 시작!")
         game_over = False
+        p1_hp[0] = 100
+        p2_hp[0] = 100
         reset_round()
 
 def handle_events():
@@ -219,13 +221,18 @@ def update():
 
     p1.on_floor = False
     p2.on_floor = False
+    if p1_hp[0] <= 0:
+        print("P1 모든 캐릭터 사망")
+        p2_win += 1
+        final_round()
+        return
+    if p2_hp[0] <= 0:
+        print("P2 모든 캐릭터 사망")
+        p1_win += 1
+        final_round()
+        return
     if p1.swap and not p1_swap:
-
-        if p1_hp[0] <= 0:
-            print("P1 모든 캐릭터 사망")
-            p2_win += 1
-            final_round()
-        elif len(selected_p1) > 1:
+        if len(selected_p1) > 1:
             selected_p1.append(selected_p1[0])
             selected_p1.pop(0)
             next_char = create_character(selected_p1[0])
@@ -237,11 +244,7 @@ def update():
 
 
     if p2.swap and not p2_swap:
-        if p2_hp[0] <= 0:
-            print("P2 모든 캐릭터 사망")
-            p1_win += 1
-            final_round()
-        elif len(selected_p2) > 1:
+        if len(selected_p2) > 1:
             selected_p2.append(selected_p2[0])
             selected_p2.pop(0)
             print(selected_p2)
