@@ -39,6 +39,14 @@ def draw():
     update_canvas()
 
 
+def toggle_character(choice, param):
+    if param in choice:
+        choice.remove(param)
+    else:
+        if len(choice) < 2:
+            choice.append(param)
+
+
 def handle_events():
     events = get_events()
     for event in events:
@@ -48,20 +56,20 @@ def handle_events():
             if event.key == SDLK_ESCAPE:
                 game_framework.quit()
             # P1 키
-            elif event.key == SDLK_1 and len(p1_choices) < 2:
-                p1_choices.append('meta')
-            elif event.key == SDLK_2 and len(p1_choices) < 2:
-                p1_choices.append('ddd')
-            elif event.key == SDLK_3 and len(p1_choices) < 2:
-                p1_choices.append('kirby')
+            elif event.key == SDLK_1:
+                toggle_character(p1_choices, 'meta')
+            elif event.key == SDLK_2:
+                toggle_character(p1_choices, 'ddd')
+            elif event.key == SDLK_3:
+                toggle_character(p1_choices, 'kirby')
 
-            # P2 키
-            elif event.key == SDLK_z and len(p2_choices) < 2:
-                p2_choices.append('meta')
-            elif event.key == SDLK_x and len(p2_choices) < 2:
-                p2_choices.append('ddd')
-            elif event.key == SDLK_c and len(p2_choices) < 2:
-                p2_choices.append('kirby')
+                # P2 키
+            elif event.key == SDLK_z:
+                toggle_character(p2_choices, 'meta')
+            elif event.key == SDLK_x:
+                toggle_character(p2_choices, 'ddd')
+            elif event.key == SDLK_c:
+                toggle_character(p2_choices, 'kirby')
             elif event.key == SDLK_SPACE:
                 if len(p1_choices) == 2 and len(p2_choices) == 2:
                     play_mode.set_selected_characters(p1_choices, p2_choices)

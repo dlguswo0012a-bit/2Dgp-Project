@@ -79,7 +79,7 @@ def create_character(name):
 
 
 def choice_character(char,p):
-    global p1, p2,floor1, floor2
+    global p1, p2, floor1, floor2,floor3,floor4,floor5
     game_world.clear_collision_group('attack:body')
 
     if p is p1:
@@ -124,8 +124,16 @@ def choice_character(char,p):
 
     game_world.add_collision_pair('body:floor', p1, floor1)
     game_world.add_collision_pair('body:floor', p1, floor2)
+    game_world.add_collision_pair('body:floor', p1, floor3)
+    game_world.add_collision_pair('body:floor', p1, floor4)
+    game_world.add_collision_pair('body:floor', p1, floor5)
+
     game_world.add_collision_pair('body:floor', p2, floor1)
     game_world.add_collision_pair('body:floor', p2, floor2)
+    game_world.add_collision_pair('body:floor', p2, floor3)
+    game_world.add_collision_pair('body:floor', p2, floor4)
+    game_world.add_collision_pair('body:floor', p2, floor5)
+
 
 
     char.frame = 0
