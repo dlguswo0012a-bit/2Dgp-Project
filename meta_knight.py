@@ -246,7 +246,9 @@ class Attack_Box:
         self.owner.attack_box = None
 
 class Counter:
-    def __init__(self, mk): self.mk = mk
+    def __init__(self, mk):
+        self.mk = mk
+        self.couter_start_time = 0.0
     def enter(self, e):
         self.mk.frame = 0
         self.mk.attack_box = None
@@ -257,9 +259,10 @@ class Counter:
         self.mk.impact_x = self.mk.attack_x
         self.mk.impact_y = self.mk.attack_y
 
-        self.attack_spawn = False
-    def exit(self, e):
         self.mk.no_damage = True
+        self.attack_spawn = False
+        self.counter_start_time = get_time()
+    def exit(self, e):
         if self.mk.attack_box:
             game_world.remove_object(self.mk.attack_box)
             self.mk.attack_box = None
@@ -273,9 +276,10 @@ class Counter:
             self.attack_spawn = True
             if self.mk.attack_box is None:
                 self.mk.spawn_attack_box(damage = 30)
+        if get_time() - self.counter_start_time > 3.0:
+            self.mk.no_damage = False
 
         if self.mk.frame >= n:
-            self.mk.no_damage = False
             self.mk.state_machine.handle_state_event(('ATTACK_DONE', None))
     def draw(self):
         img, ax, ay, aw, ah = self.mk.get_current_frame('attack')

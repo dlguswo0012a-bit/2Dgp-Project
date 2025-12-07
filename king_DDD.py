@@ -228,11 +228,12 @@ class Counter:
     def __init__(self, D):
         self.D = D
         self.attack_spawn = False
-
+        self.counter_start_time = 0.0
     def enter(self, e):
         self.D.frame = 0
         self.D.no_damage = True
         self.attack_spawn = False
+        self.counter_start_time = get_time()
         if self.D.attack_box:
             game_world.remove_object(self.D.attack_box)
             self.D.attack_box = None
@@ -250,8 +251,9 @@ class Counter:
             self.attack_spawn = True
             if self.D.attack_box is None:
                 self.D.spawn_attack_box(damage = 30)
-        if self.D.frame >= n:
+        if get_time() - self.counter_start_time > 3.0:
             self.D.no_damage = False
+        if self.D.frame >= n:
             self.D.state_machine.handle_state_event(('ATTACK_DONE', None))
     def draw(self):
         img, x, y, w, h = self.D.get_current_frame('attack')
@@ -391,6 +393,7 @@ class King_DDD:
     def draw(self):
         self.state_machine.draw()
         self.draw_bb()
+
     def get_bb(self):
         w = 60
         h = 40

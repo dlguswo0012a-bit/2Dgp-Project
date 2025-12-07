@@ -241,11 +241,13 @@ class Counter:
     def __init__(self, hk):
         self.hk = hk
         self.attack_spawn = False
+        self.counter_start_time = 0.0
 
     def enter(self, e):
         self.hk.frame = 0
         self.attack_spawn = False
         self.hk.no_damage = True
+        self.counter_start_time = get_time()
 
         if self.hk.attack_box:
             game_world.remove_object(self.hk.attack_box)
@@ -270,8 +272,10 @@ class Counter:
             if self.hk.attack_box is None:
                 self.hk.spawn_attack_box(damage = 30)
 
-        if self.hk.frame >= n:
+        if get_time() - self.counter_start_time > 3.0:
             self.hk.no_damage = False
+
+        if self.hk.frame >= n:
             self.hk.state_machine.handle_state_event(('ATTACK_DONE', None))
 
     def draw(self):
