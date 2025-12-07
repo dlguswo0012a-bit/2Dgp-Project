@@ -209,7 +209,8 @@ class Attack_Box:
             self.x = self.owner.x - 70
         self.y = self.owner.y
     def draw(self):
-        draw_rectangle(*self.get_bb())
+        #draw_rectangle(*self.get_bb())
+        pass
     def get_bb(self):
         return (self.x - self.w // 2), self.y - self.h * 1.5, (self.x + self.w // 2) + 10, self.y + self.h * 1.5
     def handle_collision(self, group, other):
@@ -452,7 +453,8 @@ class King_DDD:
         return self.x - w // 2, self.y - h // 2+10, self.x + w // 2, self.y + h // 2+10
 
     def draw_bb(self):
-        draw_rectangle(*self.get_bb())
+        #draw_rectangle(*self.get_bb())
+        pass
 
     def handle_collision(self, group, other):
         if group == 'attack:body':

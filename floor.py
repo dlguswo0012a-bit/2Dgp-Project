@@ -17,10 +17,11 @@ class Floor:
         self.draw_bb()
 
     def get_bb(self):
-        return self.x - self.w // 2, self.y - self.h // 2, self.x + self.w // 2, self.y + self.h // 2
+        return self.x - self.w // 2, self.y - self.h // 2, self.x + self.w // 2, self.y + self.h // 2 -10
 
     def draw_bb(self):
-        draw_rectangle(*self.get_bb())
+        #draw_rectangle(*self.get_bb())
+        pass
 
     def handle_collision(self, group, other):
         pass

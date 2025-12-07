@@ -216,7 +216,8 @@ class Attack_Box:
             self.x = self.owner.x - 40
         self.y = self.owner.y
     def draw(self):
-        draw_rectangle(*self.get_bb())
+        #draw_rectangle(*self.get_bb())
+        pass
     def get_bb(self):
         return (self.x - self.w // 2)-10, self.y , (self.x + self.w // 2)+5, self.y + self.h*2.5
     def handle_collision(self, group, other):
@@ -511,7 +512,8 @@ class Meta_knight:
                 self.yv = 0.0
 
     def draw_bb(self):
-        draw_rectangle(*self.get_bb())
+        #draw_rectangle(*self.get_bb())
+        pass
 
     def spawn_attack_box(self, damage):
         if self.target is None:
