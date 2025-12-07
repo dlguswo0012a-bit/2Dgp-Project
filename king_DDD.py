@@ -286,6 +286,10 @@ class King_DDD:
         self.swap = False
         self.no_damage = False
 
+        self.knockback_power = 0.0
+        self.knockback_dir = 0
+        self.knockback_timer = 0.0
+
         self.images = {
             'stand': load_image('king_dedede_stand.png'),
             'walk': load_image('king_dedede_walk.png'),
@@ -380,6 +384,9 @@ class King_DDD:
 
         if self.on_floor:
             self.yv = 0.0
+        if self.knockback_timer > 0.0:
+            self.x += self.knockback_dir * self.knockback_power * game_framework.frame_time
+            self.knockback_timer -= game_framework.frame_time
 
     def handle_event_p1(self, event):
         if event.type ==SDL_KEYDOWN and event.key == SDLK_q:
@@ -404,6 +411,17 @@ class King_DDD:
         draw_rectangle(*self.get_bb())
 
     def handle_collision(self, group, other):
+        if group == 'attack:body':
+            if hasattr(other, 'owner'):
+                if other.owner == self:
+                    return
+            self.state_machine.handle_state_event(('HIT', None))
+            self.knockback_power = 100.0
+            if other.x > self.x:
+                self.knockback_dir = -1
+            else:
+                self.knockback_dir = 1
+            self.knockback_timer = 0.2
         if group == 'body:floor':
             if self.jump_delay > 0:
                 return
