@@ -503,7 +503,7 @@ class Hammer_Kirby:
         return self.x - w // 2, self.y - h // 2-10, self.x + w // 2 - 10, self.y + h // 2-10
 
     def draw_bb(self):
-        #draw_rectangle(*self.get_bb())
+        draw_rectangle(*self.get_bb())
         pass
     def handle_collision(self, group, other):
         if group == 'attack:body':
@@ -528,14 +528,17 @@ class Hammer_Kirby:
                 self.knockback_timer = 0.2
 
         if group == 'body:floor':
-            if self.jump_delay > 0:
-                return
+            floor_left, floor_bottom, floor_right, floor_top = other.get_bb()
+            char_left, char_bottom, char_right, char_top = self.get_bb()
 
-            if not self.on_floor:
+            if self.yv <= 0 and char_top > floor_top:
+                self.y = floor_top + (char_top - char_bottom) / 2
+                self.yv = 0
                 self.on_floor = True
-                self.yv = 0.0
                 self.state_machine.handle_state_event(('LAND', None))
-
+            else:
+                if self.yv <= 0:
+                    self.on_floor = False
     def spawn_attack_box(self, damage):
         if self.target is None:
             return
