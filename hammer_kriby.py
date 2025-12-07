@@ -77,6 +77,11 @@ class Attack:
     def __init__(self, hk):
         self.hk = hk
         self.attack_spawn = False
+        self.counter_start_time = 0.0
+
+        self.impact_img = load_image('attack_star_impact.png')
+        self.impact_start_time = 0.0
+        self.impact_duration = 0.2
 
     def enter(self, e):
         self.hk.frame = 0
@@ -100,8 +105,9 @@ class Attack:
         self.hk.frame += n * ACTION_PER_TIME * game_framework.frame_time
         idx = int(self.hk.frame)
 
-        if idx == 2 and not self.attack_spawn:
+        if idx == 1 and not self.attack_spawn:
             self.attack_spawn = True
+            self.impact_start_time = get_time()
             if self.hk.attack_box is None:
                 self.hk.spawn_attack_box(damage = 20)
 
@@ -111,7 +117,18 @@ class Attack:
     def draw(self):
         img, x, y, w, h = self.hk.get_current_frame('attack')
         self.hk.draw_frame(img, x, y, w, h)
-
+        now = get_time()
+        if now - self.impact_start_time < self.impact_duration:
+            offset_x = 60
+            if self.hk.face == 1:
+                fx = self.hk.x + offset_x
+            else:
+                fx = self.hk.x - offset_x
+            fx = self.hk.x + 40 if self.hk.face == 1 else self.hk.x - 40
+            if self.hk.face == 1:
+                self.impact_img.draw(fx, self.hk.y, 60, 60)
+            else:
+                self.impact_img.composite_draw(fx, 'h', self.hk.x-60, self.hk.y, 60, 60)
 
 class Hit:
     def __init__(self, hk): self.hk = hk
@@ -242,6 +259,11 @@ class Counter:
         self.hk = hk
         self.attack_spawn = False
         self.counter_start_time = 0.0
+        self.counter_start_time = 0.0
+
+        self.impact_img = load_image('attack_star_impact.png')
+        self.impact_start_time = 0.0
+        self.impact_duration = 0.2
 
     def enter(self, e):
         self.hk.frame = 0
@@ -267,7 +289,8 @@ class Counter:
         self.hk.frame += n * ACTION_PER_TIME * game_framework.frame_time
         idx = int(self.hk.frame)
 
-        if idx == 2 and not self.attack_spawn:
+        if idx == 1 and not self.attack_spawn:
+            self.impact_start_time = get_time()
             self.attack_spawn = True
             if self.hk.attack_box is None:
                 self.hk.spawn_attack_box(damage = 30)
@@ -281,7 +304,18 @@ class Counter:
     def draw(self):
         img, x, y, w, h = self.hk.get_current_frame('attack')
         self.hk.draw_frame(img, x, y, w, h)
-
+        now = get_time()
+        if now - self.impact_start_time < self.impact_duration:
+            offset_x = 60
+            if self.hk.face == 1:
+                fx = self.hk.x + offset_x
+            else:
+                fx = self.hk.x - offset_x
+            fx = self.hk.x + 40 if self.hk.face == 1 else self.hk.x - 40
+            if self.hk.face == 1:
+                self.impact_img.draw(fx, self.hk.y, 60, 60)
+            else:
+                self.impact_img.composite_draw(fx, 'h', self.hk.x-60, self.hk.y, 60, 60)
 
 
 # ==================== 본체 ========================
@@ -313,6 +347,8 @@ class Hammer_Kirby:
         self.power_knockback = 3
 
         self.player = None
+        self.impact_time = 0.0
+        self.impact_start = 0.2
 
         self.images = {
             'stand': load_image('Hammer_Kirby_stand.png'),
@@ -320,6 +356,7 @@ class Hammer_Kirby:
             'hit': load_image('Hammer_Kirby_hit.png'),
             'attack': load_image('Hammer_Kirby_attack_e.png'),
             'jump': load_image('Hammer_Kirby_jump.png'),
+            'impact': load_image('attack_star_impact.png'),
         }
 
         self.frames = {
