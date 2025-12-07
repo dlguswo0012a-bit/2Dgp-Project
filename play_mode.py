@@ -34,6 +34,9 @@ hp_bar = None
 swap_count_p1 = 0
 swap_count_p2 = 0
 
+round_time = 60
+timer = round_time
+
 
 def draw_win_icon(x1, y1, win_count, icon_img):
     icon_size = 20
@@ -156,11 +159,15 @@ def reset_game():
     game_world.clear()
 
 def reset_round():
-    global selected_p1, selected_p2, p1_win, p2_win
+    global selected_p1, selected_p2, p1_win, p2_win, swap_count_p1, swap_count_p2, timer
+    swap_count_p1 = 0
+    swap_count_p2 = 0
     selected_p1 = selected_p1_org[:]
     selected_p2 = selected_p2_org[:]
     p1_win = 0
     p2_win = 0
+    timer = round_time
+
     game_world.clear()
     init()
 
@@ -217,7 +224,7 @@ def handle_events():
             p2.handle_event_p2(event)
 
 def init():
-    global p1, p2, floor1, floor2, background, hp_bar, selected_p1, selected_p2
+    global p1, p2, floor1, floor2, background, hp_bar, selected_p1, selected_p2, timer
 
     background = load_image('Background.png')
     hp_bar = load_image('hp.png')
@@ -237,6 +244,8 @@ def init():
 
     p1.target=p2
     p2.target=p1
+
+    timer = round_time
 
     game_world.add_collision_pair('attack:body', p1.attack_box, p2)
     game_world.add_collision_pair('attack:body', p2.attack_box, p1)
@@ -268,8 +277,23 @@ p2_swap = False
 
 def update():
     global p1, p2, selected_p1, selected_p2, game_over, p1_win, p2_win
-    global p1_swap, p2_swap, swap_count_p1, swap_count_p2
+    global p1_swap, p2_swap, swap_count_p1, swap_count_p2, timer
     if game_over:
+        return
+
+
+    timer -=game_framework.frame_time
+    if round_time <= 0:
+        print("타임아웃!")
+        if p1_hp[0] > p2_hp[0]:
+            p1_win += 1
+            print("P1 타임아웃 승리!")
+        elif p2_hp[0] > p1_hp[0]:
+            p2_win += 1
+            print("P2 타임아웃 승리!")
+        else:
+            print("무승부 (타임아웃)")
+        final_round()
         return
 
 
@@ -328,6 +352,10 @@ def draw():
 
     draw_win_icon(50, 510, p1_win, hp_bar)  # P1
     draw_win_icon(650, 510, p2_win, hp_bar)  # P2
+
+    timer_font = load_font('ENCR10B.TTF', 16)
+    timer_font.draw(600, 550, f"{int(timer)}", (255, 255, 0))
+
 
     game_world.render()
     update_canvas()
