@@ -461,12 +461,13 @@ class Hammer_Kirby:
                 if other.owner == self:
                     return
             self.state_machine.handle_state_event(('HIT', None))
-            self.knockback_power = 100.0
-            if other.x > self.x:
-                self.knockback_dir = -1
-            else:
-                self.knockback_dir = 1
-            self.knockback_timer = 0.2
+            if not self.no_damage:
+                self.knockback_power = 100.0
+                if other.x > self.x:
+                    self.knockback_dir = -1
+                else:
+                    self.knockback_dir = 1
+                self.knockback_timer = 0.2
 
         if group == 'body:floor':
             if self.jump_delay > 0:
