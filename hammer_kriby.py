@@ -259,7 +259,7 @@ class Counter:
             self.hk.attack_box = None
 
         self.attack_spawn = False
-
+        self.hk.no_damage = False
     def do(self):
         frames = self.hk.frames['attack']
         n = len(frames)

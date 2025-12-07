@@ -242,6 +242,7 @@ class Counter:
             game_world.remove_object(self.D.attack_box)
             self.D.attack_box = None
         self.attack_spawn = False
+        self.D.no_damage = False
     def do(self):
         frames = self.D.frames['attack']
         n = len(frames)
