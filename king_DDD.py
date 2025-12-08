@@ -189,7 +189,7 @@ class LAND:
     def exit(self, e): pass
     def do(self):
         if get_time() - self.delay > 0.3:
-            print("LAND")
+           # print("LAND")
             self.D.state_machine.handle_state_event(('JUMP_DONE', None))
     def draw(self):
         img, x, y, w, h = self.D.frames['jump'][2]
@@ -216,7 +216,7 @@ class Attack_Box:
         return (self.x - self.w // 2), self.y - self.h * 1.5, (self.x + self.w // 2) + 10, self.y + self.h * 1.5
     def handle_collision(self, group, other):
         if other.no_damage:
-            print('무적')
+           # print('무적')
             return
         if self.hit:
             return
@@ -224,16 +224,16 @@ class Attack_Box:
             return
         other.state_machine.handle_state_event(('HIT', None))
 
-        print('충돌')
+       # print('충돌')
 
         if other is play_mode.p1:
             play_mode.p1_hp[0] -= self.damage
-            print(f"P1 HP = {play_mode.p1_hp[0]}")
+           # print(f"P1 HP = {play_mode.p1_hp[0]}")
             if play_mode.p1_hp[0] <= 0:
                 other.dead = True
         else:
             play_mode.p2_hp[0] -= self.damage
-            print(f"P2 HP = {play_mode.p2_hp[0]}")
+          #  print(f"P2 HP = {play_mode.p2_hp[0]}")
             if play_mode.p2_hp[0] <= 0:
                 other.dead = True
 

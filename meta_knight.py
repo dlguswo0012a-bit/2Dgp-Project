@@ -229,15 +229,15 @@ class Attack_Box:
             return
         other.state_machine.handle_state_event(('HIT', None))
 
-        print('충돌')
+       # print('충돌')
         if other is play_mode.p1:
             play_mode.p1_hp[0] -= self.damage
-            print(f"P1 HP = {play_mode.p1_hp[0]}")
+          #  print(f"P1 HP = {play_mode.p1_hp[0]}")
             if play_mode.p1_hp[0] <= 0:
                 other.dead = True
         else:
             play_mode.p2_hp[0] -= self.damage
-            print(f"P2 HP = {play_mode.p2_hp[0]}")
+           # print(f"P2 HP = {play_mode.p2_hp[0]}")
             if play_mode.p2_hp[0] <= 0:
                 other.dead = True
 
@@ -341,8 +341,6 @@ class Meta_knight:
             'attack_done': load_image('meta_night_attack_remove_impact.png'),
             'impact': load_image('meta_night_attack_impact.png'),
             'jump': load_image('meta_knight_jump.png'),
-
-
         }
 
         self.frames = {
@@ -385,7 +383,6 @@ class Meta_knight:
                 ('jump',63, 6, 38, 41),
                 ('jump',117, 13, 38, 34),
                 ('jump',170, 11, 34, 36),
-
             ]
         }
 
@@ -414,7 +411,6 @@ class Meta_knight:
                             lambda e: e[0] == 'LAND': self.LAND},
                 self.LAND: {lambda e: e[0] == 'JUMP_DONE': self.STAND},
                 self.COUNTER: {lambda e: e[0] == 'ATTACK_DONE': self.STAND},
-
             }
         )
 

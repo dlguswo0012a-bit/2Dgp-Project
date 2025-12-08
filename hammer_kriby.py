@@ -235,17 +235,17 @@ class Attack_Box:
             return
         if other == self.owner:
             return
-        print('충돌')
+     #   print('충돌')
         other.state_machine.handle_state_event(('HIT', None))
 
         if other is play_mode.p1:
             play_mode.p1_hp[0] -= self.damage
-            print(f"P1 HP = {play_mode.p1_hp[0]}")
+          #  print(f"P1 HP = {play_mode.p1_hp[0]}")
             if play_mode.p1_hp[0] <= 0:
                 other.dead = True
         else:
             play_mode.p2_hp[0] -= self.damage
-            print(f"P2 HP = {play_mode.p2_hp[0]}")
+          #  print(f"P2 HP = {play_mode.p2_hp[0]}")
             if play_mode.p2_hp[0] <= 0:
                 other.dead = True
 
