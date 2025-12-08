@@ -234,9 +234,8 @@ def init():
     hp_bar = load_image('hp.png')
     arrow_p1 = load_image('p1.png')
     arrow_p2 = load_image('p2.png')
-    bgm = load_music('bgm.mp3')
-    bgm.set_volume(64)
-    bgm.repeat_play()
+
+
 
     p1 = create_character(selected_p1[0])
     p2 = create_character(selected_p2[0])
