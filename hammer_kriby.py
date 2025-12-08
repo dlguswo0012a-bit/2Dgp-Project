@@ -12,6 +12,8 @@ PIXEL_PER_METER = 1.0 / 0.03
 WALK_SPEED_MPS = 7.0
 WALK_SPEED_PPS = WALK_SPEED_MPS * PIXEL_PER_METER
 
+
+
 # ===== 입력 이벤트 =====
 def d_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_d
 def d_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_d
@@ -137,7 +139,12 @@ class Attack:
                 self.impact_img.composite_draw(fx, 'h', self.hk.x-60, self.hk.y, 60, 60)
 
 class Hit:
-    def __init__(self, hk): self.hk = hk
+    hit_sound = None
+    def __init__(self, hk):
+        self.hk = hk
+        if Hit.hit_sound is None:
+            Hit.hit_sound = load_wav('cartoon_hammer.wav')
+            Hit.hit_sound.set_volume(32)
     def enter(self, e): self.hk.frame = 0
     def exit(self, e): pass
     def do(self):
@@ -244,6 +251,7 @@ class Attack_Box:
 
         if other is play_mode.p1:
             play_mode.p1_hp[0] -= self.damage
+
           #  print(f"P1 HP = {play_mode.p1_hp[0]}")
             if play_mode.p1_hp[0] <= 0:
                 other.dead = True
@@ -513,6 +521,7 @@ class Hammer_Kirby:
         pass
     def handle_collision(self, group, other):
         if group == 'attack:body':
+            Hit.hit_sound.play()
             if hasattr(other, 'owner'):
                 if other.owner == self:
                     return

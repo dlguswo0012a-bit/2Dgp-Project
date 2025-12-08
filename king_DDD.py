@@ -127,7 +127,12 @@ class Attack:
 
 
 class Hit:
-    def __init__(self, D): self.D = D
+    hit_sound = None
+    def __init__(self, D):
+        self.D = D
+        if Hit.hit_sound is None:
+            Hit.hit_sound = load_wav('cartoon_hammer.wav')
+            Hit.hit_sound.set_volume(32)
     def enter(self, e): self.D.frame = 0
     def exit(self, e): pass
     def do(self):
@@ -463,6 +468,7 @@ class King_DDD:
 
     def handle_collision(self, group, other):
         if group == 'attack:body':
+            Hit.hit_sound.play()
             if hasattr(other, 'owner'):
                 if other.owner == self:
                     return
