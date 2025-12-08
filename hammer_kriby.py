@@ -143,7 +143,7 @@ class Hit:
     def __init__(self, hk):
         self.hk = hk
         if Hit.hit_sound is None:
-            Hit.hit_sound = load_wav('cartoon_hammer.wav')
+            Hit.hit_sound = load_wav('sound/cartoon_hammer.wav')
             Hit.hit_sound.set_volume(32)
     def enter(self, e): self.hk.frame = 0
     def exit(self, e): pass

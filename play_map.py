@@ -18,6 +18,8 @@ class PlayMap:
         self.floor5 = Floor(600, 260, 200, 90)
         game_world.add_object(self.floor5, 0)
 
+
+
     def handle_collision(self, p1, p2):
         game_world.clear_collision_group('body:floor')
 

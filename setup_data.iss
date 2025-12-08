@@ -33,7 +33,7 @@ DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
-OutputDir=C:\Users\rj050\OneDrive\바탕 화면\Drill\2Dgp-Project\dist
+OutputDir=C:\Users\rj050\00\2Dgp-Project\Temp
 OutputBaseFilename=Game_2022182032_Setup
 SolidCompression=yes
 WizardStyle=modern dynamic
@@ -46,8 +46,8 @@ Name: "korean"; MessagesFile: "compiler:Languages\Korean.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\rj050\OneDrive\바탕 화면\Drill\2Dgp-Project\dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\rj050\OneDrive\바탕 화면\Drill\2Dgp-Project\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\rj050\00\2Dgp-Project\dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\rj050\00\2Dgp-Project\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

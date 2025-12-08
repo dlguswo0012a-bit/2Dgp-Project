@@ -59,7 +59,7 @@ def collide(a, b):
 collision_pairs = {}
 def add_collision_pair(group, a, b):
     if group not in collision_pairs:
-        print(f'Added new group {group}') #처음 추가되는 그룹이라면
+        #print(f'Added new group {group}') #처음 추가되는 그룹이라면
         collision_pairs[group] = [[], []] #해당 그룹을 만든다
     if a:
         collision_pairs[group][0].append(a)

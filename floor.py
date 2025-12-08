@@ -6,6 +6,7 @@ class Floor:
         self.w=width
         self.image = load_image('grass.png')
 
+
         self.h = self.image.h-15
 
 
