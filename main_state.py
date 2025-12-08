@@ -4,6 +4,8 @@ import game_framework
 import title_mode as start_mode
 
 open_canvas(1200, 600)
-
+bgm = load_music('bgm.mp3')
+bgm.set_volume(40)
+bgm.repeat_play()
 game_framework.run(start_mode)
 close_canvas()
