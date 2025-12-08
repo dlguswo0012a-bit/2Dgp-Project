@@ -1,11 +1,10 @@
 import random
 from pico2d import *
-
+from play_map import PlayMap
 import game_framework
 import game_world
 import character_select
 
-from floor import Floor
 from meta_knight import Meta_knight
 from king_DDD import King_DDD
 from hammer_kriby import Hammer_Kirby
@@ -85,7 +84,7 @@ def create_character(name):
 
 
 def choice_character(char,p):
-    global p1, p2, floor1, floor2,floor3,floor4,floor5
+    global p1, p2
     game_world.clear_collision_group('attack:body')
 
     if p is p1:
@@ -130,19 +129,6 @@ def choice_character(char,p):
     game_world.add_collision_pair('attack:body', p1.attack_box, p2)
     game_world.add_collision_pair('attack:body', p2.attack_box, p1)
 
-    game_world.add_collision_pair('body:floor', p1, floor1)
-    game_world.add_collision_pair('body:floor', p1, floor2)
-    game_world.add_collision_pair('body:floor', p1, floor3)
-    game_world.add_collision_pair('body:floor', p1, floor4)
-    game_world.add_collision_pair('body:floor', p1, floor5)
-
-    game_world.add_collision_pair('body:floor', p2, floor1)
-    game_world.add_collision_pair('body:floor', p2, floor2)
-    game_world.add_collision_pair('body:floor', p2, floor3)
-    game_world.add_collision_pair('body:floor', p2, floor4)
-    game_world.add_collision_pair('body:floor', p2, floor5)
-
-
 
     char.frame = 0
     char.state_machine.cur_state = char.STAND
@@ -178,13 +164,13 @@ def reset_round():
 def final_round():
     global game_over
     if p1_win >= max_wins:
-        print("P1 최종 승리!")
+        #print("P1 최종 승리!")
         game_over = True
     elif p2_win >= max_wins:
-        print("P2 최종 승리!")
+        #print("P2 최종 승리!")
         game_over = True
     else:
-        print("다음 라운드 시작!")
+        #print("다음 라운드 시작!")
         game_over = False
         p1_hp[0] = 100
         p2_hp[0] = 100
@@ -204,23 +190,23 @@ def handle_events():
             game_framework.quit()
         elif event.key == SDLK_1 and event.type == SDL_KEYDOWN:
             choice_character(Meta_knight(),p1)
-            print("p1 : meta knight")
+            #print("p1 : meta knight")
         elif event.key == SDLK_2 and event.type == SDL_KEYDOWN:
             choice_character(King_DDD(),p1)
-            print("p1 : king DDD")
+           # print("p1 : king DDD")
         elif event.key == SDLK_3 and event.type == SDL_KEYDOWN:
             choice_character(Hammer_Kirby(),p1)
-            print("p1 : hammer kriby")
+           # print("p1 : hammer kriby")
 
         elif event.key == SDLK_z and event.type == SDL_KEYDOWN:
             choice_character(Meta_knight(),p2)
-            print("p2 : meta knight")
+           # print("p2 : meta knight")
         elif event.key == SDLK_x and event.type == SDL_KEYDOWN:
             choice_character(King_DDD(),p2)
-            print("p2 : king DDD")
+           # print("p2 : king DDD")
         elif event.key == SDLK_c and event.type == SDL_KEYDOWN:
             choice_character(Hammer_Kirby(),p2)
-            print("p2 : hammer kriby")
+           # print("p2 : hammer kriby")
 
         if event.key in (SDLK_w,SDLK_a,SDLK_s,SDLK_d,SDLK_f,SDLK_g) and event.type in (SDL_KEYDOWN, SDL_KEYUP):
             p1.handle_event_p1(event)
@@ -228,14 +214,11 @@ def handle_events():
             p2.handle_event_p2(event)
 
 def init():
-    global p1, p2, floor1, floor2, background, hp_bar, selected_p1, selected_p2, timer,floor3, floor4, floor5, arrow_p1, arrow_p2
+    global p1, p2, hp_bar, selected_p1, selected_p2, arrow_p1, arrow_p2, play_map, timer
 
-    background = load_image('Background.png')
     hp_bar = load_image('hp.png')
     arrow_p1 = load_image('p1.png')
     arrow_p2 = load_image('p2.png')
-
-
 
     p1 = create_character(selected_p1[0])
     p2 = create_character(selected_p2[0])
@@ -247,6 +230,8 @@ def init():
     p2.y = 250
     p2.face = -1
 
+    play_map = PlayMap()
+    play_map.handle_collision(p1, p2)
     game_world.add_object(p1,1)
     game_world.add_object(p2,1)
 
@@ -258,28 +243,7 @@ def init():
     game_world.add_collision_pair('attack:body', p1.attack_box, p2)
     game_world.add_collision_pair('attack:body', p2.attack_box, p1)
 
-    floor1 = Floor(300, 130,300, 90)
-    game_world.add_object(floor1,0)
-    floor2 = Floor(900,130, 300,90)
-    game_world.add_object(floor2,0)
-    floor3 = Floor(100, 250, 300, 90)
-    game_world.add_object(floor3, 0)
-    floor4 = Floor(1100, 250, 300, 90)
-    game_world.add_object(floor4, 0)
-    floor5 = Floor(600, 260, 200, 90)
-    game_world.add_object(floor5, 0)
 
-    game_world.add_collision_pair('body:floor', p1, floor1)
-    game_world.add_collision_pair('body:floor', p1, floor2)
-    game_world.add_collision_pair('body:floor', p1, floor3)
-    game_world.add_collision_pair('body:floor', p1, floor4)
-    game_world.add_collision_pair('body:floor', p1, floor5)
-
-    game_world.add_collision_pair('body:floor', p2, floor1)
-    game_world.add_collision_pair('body:floor', p2, floor2)
-    game_world.add_collision_pair('body:floor', p2, floor3)
-    game_world.add_collision_pair('body:floor', p2, floor4)
-    game_world.add_collision_pair('body:floor', p2, floor5)
 p1_swap = False
 p2_swap = False
 
@@ -288,23 +252,24 @@ def update():
     global p1_swap, p2_swap, swap_count_p1, swap_count_p2, timer
     if game_over:
         return
+    play_map.update()
 
 
     timer -=game_framework.frame_time
     if timer <= 0:
-        print("타임아웃!")
+        #print("타임아웃!")
         if p1_hp[0] > p2_hp[0]:
             p1_win += 1
-            print("P1 타임아웃 승리!")
+            #print("P1 타임아웃 승리!")
             final_round()
             return
         elif p2_hp[0] > p1_hp[0]:
             p2_win += 1
-            print("P2 타임아웃 승리!")
+            #print("P2 타임아웃 승리!")
             final_round()
             return
         else:
-            print("무승부 (타임아웃)")
+            #print("무승부 (타임아웃)")
             final_round()
             return
 
@@ -313,16 +278,16 @@ def update():
     p1.on_floor = False
     p2.on_floor = False
     if p1_hp[0] == 0 and p2_hp[0] == 0:
-        print("무승부")
+        #print("무승부")
         final_round()
         return
     if p1_hp[0] <= 0:
-        print("P1 모든 캐릭터 사망")
+        #print("P1 모든 캐릭터 사망")
         p2_win += 1
         final_round()
         return
     if p2_hp[0] <= 0:
-        print("P2 모든 캐릭터 사망")
+        #print("P2 모든 캐릭터 사망")
         p1_win += 1
         final_round()
         return
@@ -335,6 +300,7 @@ def update():
             choice_character(next_char, p1)
             p1.attack_box = None
             p1.swap = False
+            play_map.handle_collision(p1, p2)
             p1.state_machine.change_state(p1.COUNTER)
 
 
@@ -344,12 +310,12 @@ def update():
         if len(selected_p2) > 1 and swap_count_p2 <=5:
             selected_p2.append(selected_p2[0])
             selected_p2.pop(0)
-            print(selected_p2)
+            #print(selected_p2)
             next_char = create_character(selected_p2[0])
             choice_character(next_char, p2)
             p2.attack_box = None
             p2.swap = False
-            p2_swap = True
+            play_map.handle_collision(p1, p2)
             p2.state_machine.change_state(p2.COUNTER)
 
     p1_swap = False
@@ -363,7 +329,7 @@ def update():
 
 def draw():
     clear_canvas()
-    background.draw(600, 300, 1200, 600)
+    play_map.draw()
     draw_hp_bar(50, 530, p1_hp[0], hp_bar)  # Player 1
     draw_hp_bar(650, 530, p2_hp[0], hp_bar)  # Player 2
 
