@@ -7,7 +7,10 @@ from state_machine import StateMachine
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 GRAVITY = 9.8 * 2
-import time
+
+PIXEL_PER_METER = 1.0 / 0.03
+WALK_SPEED_MPS = 7.0
+WALK_SPEED_PPS = WALK_SPEED_MPS * PIXEL_PER_METER
 
 # ===== 입력 이벤트 =====
 def d_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_d
@@ -70,7 +73,7 @@ class Walk:
         frames = self.D.frames['walk']
         n = len(frames)
         self.D.frame = (self.D.frame + n * ACTION_PER_TIME * game_framework.frame_time) % n
-        self.D.x += self.D.dir * 200 * game_framework.frame_time
+        self.D.x += self.D.dir * WALK_SPEED_PPS * game_framework.frame_time
     def draw(self):
         img, x, y, w, h = self.D.get_current_frame('walk')
         self.D.draw_frame(img, x, y, w, h)

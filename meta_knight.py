@@ -6,6 +6,11 @@ from state_machine import StateMachine
 
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+
+PIXEL_PER_METER = 1.0 / 0.03
+WALK_SPEED_MPS = 7.0
+WALK_SPEED_PPS = WALK_SPEED_MPS * PIXEL_PER_METER
+
 GRAVITY = 9.8*2
 HEIGHT = 40
 
@@ -70,7 +75,7 @@ class Walk:
         frames = self.mk.frames['walk']
         n = len(frames)
         self.mk.frame = (self.mk.frame + n * ACTION_PER_TIME * game_framework.frame_time) % n
-        self.mk.x += self.mk.dir * 200 * game_framework.frame_time
+        self.mk.x += self.mk.dir * WALK_SPEED_PPS  * game_framework.frame_time
     def draw(self):
         img, x, y, w, h = self.mk.get_current_frame('walk')
         self.mk.draw_frame(img, x, y, w, h)

@@ -8,6 +8,10 @@ TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 GRAVITY = 9.8 *2
 
+PIXEL_PER_METER = 1.0 / 0.03
+WALK_SPEED_MPS = 7.0
+WALK_SPEED_PPS = WALK_SPEED_MPS * PIXEL_PER_METER
+
 # ===== 입력 이벤트 =====
 def d_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_d
 def d_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_d
@@ -69,7 +73,7 @@ class Walk:
         frames = self.hk.frames['walk']
         n = len(frames)
         self.hk.frame = (self.hk.frame + n * ACTION_PER_TIME * game_framework.frame_time) % n
-        self.hk.x += self.hk.dir * 200 * game_framework.frame_time
+        self.hk.x += self.hk.dir * WALK_SPEED_PPS * game_framework.frame_time
     def draw(self):
         img, x, y, w, h = self.hk.get_current_frame('walk')
         self.hk.draw_frame(img, x, y, w, h)
