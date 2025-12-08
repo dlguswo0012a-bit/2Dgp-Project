@@ -14,22 +14,22 @@ def d_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].k
 def d_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_d
 def a_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_a
 def a_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_a
-def e_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_e
+def e_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_f
 def w_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_w
 def w_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_w
-def q_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_q
-def q_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_q
+def q_down(e): return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_g
+def q_up(e):   return e[0] == 'INPUT_P1' and e[1].type == SDL_KEYUP and e[1].key == SDLK_g
 
 
 def l_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_l
 def l_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_l
 def j_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_j
 def j_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_j
-def u_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_u
+def u_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_KP_7
 def i_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_i
 def i_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_i
-def o_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_o
-def o_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_o
+def o_down(e): return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_KP_8
+def o_up(e):   return e[0] == 'INPUT_P2' and e[1].type == SDL_KEYUP and e[1].key == SDLK_KP_8
 
 
 
@@ -102,7 +102,7 @@ class Attack:
         if idx == 2 and not self.attack_spawn:
             self.attack_spawn = True
             if self.mk.attack_box is None:
-                self.mk.spawn_attack_box(damage = 10)
+                self.mk.spawn_attack_box(damage = 20)
 
         if self.mk.frame >= n:
             self.mk.state_machine.handle_state_event(('ATTACK_DONE', None))
@@ -277,7 +277,7 @@ class Counter:
         if idx == 2 and not self.attack_spawn:
             self.attack_spawn = True
             if self.mk.attack_box is None:
-                self.mk.spawn_attack_box(damage = 30)
+                self.mk.spawn_attack_box(damage = 20)
         if get_time() - self.counter_start_time > 3.0:
             self.mk.no_damage = False
 
@@ -461,12 +461,12 @@ class Meta_knight:
 
 
     def handle_event_p1(self, event):
-        if event.type ==SDL_KEYDOWN and event.key == SDLK_q:
+        if event.type ==SDL_KEYDOWN and event.key == SDLK_g:
             self.swap = True
         self.state_machine.handle_state_event(('INPUT_P1', event))
 
     def handle_event_p2(self, event):
-        if event.type ==SDL_KEYDOWN and event.key == SDLK_o:
+        if event.type ==SDL_KEYDOWN and event.key == SDLK_KP_8:
             self.swap = True
         self.state_machine.handle_state_event(('INPUT_P2', event))
 
@@ -515,7 +515,7 @@ class Meta_knight:
                     self.on_floor = False
 
     def draw_bb(self):
-        draw_rectangle(*self.get_bb())
+        #draw_rectangle(*self.get_bb())
         pass
 
     def spawn_attack_box(self, damage):

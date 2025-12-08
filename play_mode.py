@@ -222,9 +222,9 @@ def handle_events():
             choice_character(Hammer_Kirby(),p2)
             print("p2 : hammer kriby")
 
-        if event.key in (SDLK_w,SDLK_a,SDLK_s,SDLK_d,SDLK_e,SDLK_q) and event.type in (SDL_KEYDOWN, SDL_KEYUP):
+        if event.key in (SDLK_w,SDLK_a,SDLK_s,SDLK_d,SDLK_f,SDLK_g) and event.type in (SDL_KEYDOWN, SDL_KEYUP):
             p1.handle_event_p1(event)
-        elif event.key in (SDLK_i, SDLK_j, SDLK_k, SDLK_l, SDLK_u, SDLK_o) and event.type in (SDL_KEYDOWN, SDL_KEYUP):
+        elif event.key in (SDLK_i, SDLK_j, SDLK_k, SDLK_l, SDLK_KP_7, SDLK_KP_8) and event.type in (SDL_KEYDOWN, SDL_KEYUP):
             p2.handle_event_p2(event)
 
 def init():
@@ -234,6 +234,9 @@ def init():
     hp_bar = load_image('hp.png')
     arrow_p1 = load_image('p1.png')
     arrow_p2 = load_image('p2.png')
+    bgm = load_music('bgm.mp3')
+    bgm.set_volume(64)
+    bgm.repeat_play()
 
     p1 = create_character(selected_p1[0])
     p2 = create_character(selected_p2[0])
@@ -326,7 +329,7 @@ def update():
         return
     if p1.swap and not p1_swap:
         swap_count_p1 += 1
-        if len(selected_p1) > 1 and swap_count_p1 <= 3:
+        if len(selected_p1) > 1 and swap_count_p1 <= 5:
             selected_p1.append(selected_p1[0])
             selected_p1.pop(0)
             next_char = create_character(selected_p1[0])
@@ -339,7 +342,7 @@ def update():
 
     if p2.swap and not p2_swap:
         swap_count_p2 += 1
-        if len(selected_p2) > 1 and swap_count_p2 <=3:
+        if len(selected_p2) > 1 and swap_count_p2 <=5:
             selected_p2.append(selected_p2[0])
             selected_p2.pop(0)
             print(selected_p2)
